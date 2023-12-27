@@ -1,0 +1,135 @@
+:root {
+    --container-width: 90vw;
+    --container-height: 50vw;
+    --container-width-unitless: 90; 
+    --container-height-unitless: 50;  
+    --container-max-width: 850px; 
+    --container-max-height: calc(var(--container-max-width) * 
+        (var(--container-height-unitless) / 
+        var(--container-width-unitless)));
+
+    --white-key-width: 10.8%;
+    --white-key-height: 72%; 
+    --white-key-width-unitless: 10.8; 
+    --white-key-height-unitless: 72; 
+    /* --white-key-scale: 1.2;  */
+
+    --black-key-width: 5%; 
+    --black-key-height: 55%; 
+    --black-key-width-unitless: 5; 
+    --black-key-height-unitless: 55; 
+}
+
+* {
+    box-sizing: border-box; 
+}
+
+body, html {
+    background-color: #b800b830;
+    min-height: 100vh;
+    display: flex; 
+    flex-direction: column;
+    margin: 0; 
+    padding: 0; 
+    color: #444;
+}
+
+.title { 
+    text-align: center; 
+    margin: 0; 
+    padding: 20px;
+    border-bottom: 3px solid;
+}
+
+.container {
+    width: var(--container-width);
+    height: var(--container-height); 
+    max-width: calc(var(--container-max-width));
+    max-height: var(--container-max-height); 
+    background-color: #333; 
+    border: 5px solid;
+    margin: auto;
+    /* The position and top properties will move the main container slightly
+    above center, though seems like a bit of a makeshift solution. */
+    position: relative;  
+    top: -10px;
+    /* Styling the location of the actual content */ 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.btn-key-white {
+    width: calc(var(--white-key-width));
+    height: calc(var(--white-key-height)); 
+    /* Calculate max width by taking container max width, scaling it down by the ratio between key and container widths, then scaling by key scale. */
+    max-width: calc(var(--container-max-width) *
+        var(--white-key-width-unitless) / var(--container-width-unitless) 
+        * var(--white-key-scale));
+    /* Similar to max width above */
+    max-height: calc(var(--container-max-height) *
+        (var(--white-key-height-unitless) / var(--container-height-unitless))
+        * var(---white-key-scale));
+    background-color: #fff;
+    margin-right: 0;
+    border: 2px solid #222;
+}
+
+.btn-key-white:hover {
+    background-color: #ddd;
+}
+
+.btn-key-black {
+    background-color: #222; 
+    border: 2px solid #222;
+    width: var(--black-key-width); 
+    height: var(--black-key-height);
+    /* Calculate max width by taking container max width, scaling it down by the ratio between key and container widths, then scaling by key scale. */
+    max-width: calc(var(--container-max-width) *
+        var(--black-key-width-unitless) / var(--container-width-unitless) 
+        * var(--black-key-scale));
+    /* Similar to max width above */
+    max-height: calc(var(--container-max-height) *
+        (var(--black-key-height-unitless) / var(--container-height-unitless))
+        * var(---black-key-scale));
+}
+
+
+.footer { 
+    /* Below aligns without display flex  */
+    /* position: fixed;
+    bottom: .5em;
+    width: 100%;  */
+    /* text-align: center;  */
+    /* Below aligns with display flex */
+    display: flex; 
+    justify-content: center; 
+    align-items: baseline; 
+}
+
+.footer-item {
+    margin-right: 5px; 
+    margin-bottom: 8px; 
+}
+
+.footer-item:last-child { 
+    margin-right: 0; 
+}
+
+.footer-text {
+    font-size: 16px;
+    /* padding: 10px; */
+    font-weight: bold; 
+}
+
+.footer-linkedin-image {
+    width: 40px; 
+    margin-bottom: -8px; 
+}
+
+/* Doesn't exist right now 
+.footer-text-signature {
+    font-weight: bold; 
+} */
+
+
