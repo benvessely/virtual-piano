@@ -80,24 +80,6 @@ body, html {
     border-radius: 5px; 
 }
 
-/* .btn-key-white, 
-.btn-key-black { 
-    
-} */
-
-/* 
-.white-keys { 
-    display: flex;
-    justify-content: center;
-} */
-
-/* .black-keys {
-    position: relative;
-    top: -10px;
-    display: flex;
-    justify-content: space-between;
-} */
-
 .btn-key-white {
     width: calc(var(--white-key-width));
     height: calc(var(--white-key-height)); 
@@ -136,6 +118,10 @@ body, html {
     border-radius: 0 0 5px 5px; 
 }
 
+.btn-key-black:hover { 
+    background-color: #333;
+}
+
 .btn-key-c-sharp {
     top: var(--black-key-top-percent); 
     left: var(--c-sharp-left); 
@@ -160,6 +146,8 @@ body, html {
     top: var(--black-key-top-percent); 
     left: var(--a-sharp-left); 
 }
+
+
 
 .footer { 
     /* Below aligns without display flex  */
