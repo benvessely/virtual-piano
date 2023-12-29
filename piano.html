@@ -14,51 +14,48 @@
         <header>
             <h1 class="title">Virtual Piano</h1>
         </header>
-    
-        <!-- Do I want span elements here? 
-        <div class="container">
-            <span>
-                <button type="button" class="key-btn key-btn-c-low"></button>
-            </span>
-            <span>
-                <button type="button" class="key-btn key-btn-d"></button>
-            </span>
-            <span>
-                <button type="button" class="key-btn key-btn-e"></button>
-            </span>
-            <span>
-                <button type="button" class="key-btn key-btn-f"></button>
-            </span>
-            <span>
-                <button type="button" class="key-btn key-btn-g"></button>
-            </span>
-            <span>
-                <button type="button" class="key-btn key-btn-a"></button>
-            </span>
-            <span>
-                <button type="button" class="key-btn key-btn-b"></button>
-            </span>
-            <span>
-                <button type="button" class="key-btn key-btn-c-high"></button>
-            </span>
-        </div> 
-        -->
 
+        <!-- This approach keeps all keys as children of the container div. --> 
         <div class="container">
-            <button type="button" class="btn-key-white key-btn-c-low"></button>
-            <button type="button" class="btn-key-black key-btn-c-sharp"></button>
-            <button type="button" class="btn-key-white key-btn-d"></button>
-            <!-- <button type="button" class="btn-key-black key-btn-d-sharp"></button> -->
-            <button type="button" class="btn-key-white key-btn-e"></button>
-            <button type="button" class="btn-key-white key-btn-f"></button>
-            <!-- <button type="button" class="btn-key-black key-btn-f-sharp"></button> -->
-            <button type="button" class="btn-key-white key-btn-g"></button>
-            <!-- <button type="button" class="btn-key-black key-btn-g-sharp"></button> -->
-            <button type="button" class="btn-key-white key-btn-a"></button>
-            <!-- <button type="button" class="btn-key-black key-btn-a-sharp"></button> -->
-            <button type="button" class="btn-key-white key-btn-b"></button>
-            <button type="button" class="btn-key-white key-btn-c-high"></button>
+            <button type="button" class="btn-key-white btn-key-c-low"></button>
+            <button type="button" class="btn-key-black btn-key-c-sharp"></button>
+            <button type="button" class="btn-key-white btn-key-d"></button>
+            <button type="button" class="btn-key-black btn-key-d-sharp"></button>
+            <button type="button" class="btn-key-white btn-key-e"></button>
+            <button type="button" class="btn-key-white btn-key-f"></button>
+            <button type="button" class="btn-key-black btn-key-f-sharp"></button>
+            <button type="button" class="btn-key-white btn-key-g"></button>
+            <button type="button" class="btn-key-black btn-key-g-sharp"></button>
+            <button type="button" class="btn-key-white btn-key-a"></button>
+            <button type="button" class="btn-key-black btn-key-a-sharp"></button>
+            <button type="button" class="btn-key-white btn-key-b"></button>
+            <button type="button" class="btn-key-white btn-key-c-high"></button>
         </div>
+
+        
+        <!-- THINKING I might keep this so that I don't have to deal with resizing the white keys. I could put the black keys in another div and then resize them I guess? -->
+
+
+        <!-- This approach puts the white and black keys in respective divs. This which could allow us to style their locations independently. But that would really mess with my sizing of the keys so I'm goint to try to avoid that. -->
+        <!-- <div class="container">
+            <div class="white-keys">
+                <button type="button" class="btn-key-white key-btn-c-low"></button>
+                <button type="button" class="btn-key-white key-btn-d"></button>
+                <button type="button" class="btn-key-white key-btn-e"></button>
+                <button type="button" class="btn-key-white key-btn-f"></button>
+                <button type="button" class="btn-key-white key-btn-g"></button>
+                <button type="button" class="btn-key-white key-btn-a"></button>
+                <button type="button" class="btn-key-white key-btn-b"></button>
+                <button type="button" class="btn-key-white key-btn-c-high"></button>
+            </div>
+            <div class="black-keys">
+                <button type="button" class="btn-key-black key-btn-c-sharp"></button>
+                <button type="button" class="btn-key-black key-btn-d-sharp"></button>
+                <button type="button" class="btn-key-black key-btn-f-sharp"></button>
+                <button type="button" class="btn-key-black key-btn-g-sharp"></button>
+                <button type="button" class="btn-key-black key-btn-a-sharp"></button>
+            </div>
+        </div> -->
 
 
         <footer>

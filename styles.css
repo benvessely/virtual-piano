@@ -9,15 +9,35 @@
         var(--container-width-unitless)));
 
     --white-key-width: 10.8%;
-    --white-key-height: 72%; 
+    --white-key-height: 80%; 
     --white-key-width-unitless: 10.8; 
-    --white-key-height-unitless: 72; 
+    --white-key-height-unitless: 80; 
     /* --white-key-scale: 1.2;  */
 
-    --black-key-width: 5%; 
-    --black-key-height: 55%; 
-    --black-key-width-unitless: 5; 
+    --black-key-width: 5.75%; 
+    --black-key-height: 60%; 
+    --black-key-width-unitless: 5.75; 
     --black-key-height-unitless: 55; 
+
+    /* Below code puts black keys in the right spot */ 
+    --padding-size-top: calc((100% - var(--white-key-height)) / 2); 
+    --black-key-top-percent: var(--padding-size-top);
+    --padding-size-side: calc((100% - 8 * var(--white-key-width)) * .5); 
+    --c-sharp-left:
+        calc(100% - 7 * var(--white-key-width) - var(--padding-size-side)
+        - .5 * var(--black-key-width));
+    --d-sharp-left: 
+        calc(100% - 6 * var(--white-key-width) - var(--padding-size-side)
+        - .5 * var(--black-key-width));
+    --f-sharp-left: 
+        calc(100% - 4 * var(--white-key-width) - var(--padding-size-side)
+        - .5 * var(--black-key-width));
+    --g-sharp-left: 
+        calc(100% - 3 * var(--white-key-width) - var(--padding-size-side)
+        - .5 * var(--black-key-width));
+    --a-sharp-left: 
+        calc(100% - 2 * var(--white-key-width) - var(--padding-size-side)
+        - .5 * var(--black-key-width));
 }
 
 * {
@@ -57,7 +77,26 @@ body, html {
     display: flex; 
     justify-content: center; 
     align-items: center; 
+    border-radius: 5px; 
 }
+
+/* .btn-key-white, 
+.btn-key-black { 
+    
+} */
+
+/* 
+.white-keys { 
+    display: flex;
+    justify-content: center;
+} */
+
+/* .black-keys {
+    position: relative;
+    top: -10px;
+    display: flex;
+    justify-content: space-between;
+} */
 
 .btn-key-white {
     width: calc(var(--white-key-width));
@@ -72,7 +111,8 @@ body, html {
         * var(---white-key-scale));
     background-color: #fff;
     margin-right: 0;
-    border: 2px solid #222;
+    border: 1.5px solid #222;
+    border-radius: 0 0 6px 6px; 
 }
 
 .btn-key-white:hover {
@@ -92,8 +132,34 @@ body, html {
     max-height: calc(var(--container-max-height) *
         (var(--black-key-height-unitless) / var(--container-height-unitless))
         * var(---black-key-scale));
+    position: absolute; 
+    border-radius: 0 0 5px 5px; 
 }
 
+.btn-key-c-sharp {
+    top: var(--black-key-top-percent); 
+    left: var(--c-sharp-left); 
+}
+
+.btn-key-d-sharp {
+    top: var(--black-key-top-percent); 
+    left: var(--d-sharp-left); 
+}
+
+.btn-key-f-sharp {
+    top: var(--black-key-top-percent); 
+    left: var(--f-sharp-left); 
+}
+
+.btn-key-g-sharp {
+    top: var(--black-key-top-percent);
+    left: var(--g-sharp-left); 
+}
+
+.btn-key-a-sharp {
+    top: var(--black-key-top-percent); 
+    left: var(--a-sharp-left); 
+}
 
 .footer { 
     /* Below aligns without display flex  */
@@ -131,9 +197,5 @@ body, html {
 .footer-text-signature {
     font-weight: bold; 
 } */
-
-.git-test {
-    background-color: #111; 
-}
 
 
