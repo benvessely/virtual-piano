@@ -9,7 +9,9 @@
         <meta name="author" content="Ben Vessely">
 
         <link rel="stylesheet" type="text/css" href="styles.css"> 
+        <script src="piano.js" async></script>
     </head>
+
     <body> 
         <header>
             <h1 class="title">Virtual Piano</h1>
@@ -17,24 +19,23 @@
 
         <!-- This approach keeps all keys as children of the container div. --> 
         <div class="container">
-            <button type="button" class="btn-key-white btn-key-c-low"></button>
-            <button type="button" class="btn-key-black btn-key-c-sharp"></button>
-            <button type="button" class="btn-key-white btn-key-d"></button>
-            <button type="button" class="btn-key-black btn-key-d-sharp"></button>
-            <button type="button" class="btn-key-white btn-key-e"></button>
-            <button type="button" class="btn-key-white btn-key-f"></button>
-            <button type="button" class="btn-key-black btn-key-f-sharp"></button>
-            <button type="button" class="btn-key-white btn-key-g"></button>
-            <button type="button" class="btn-key-black btn-key-g-sharp"></button>
-            <button type="button" class="btn-key-white btn-key-a"></button>
-            <button type="button" class="btn-key-black btn-key-a-sharp"></button>
-            <button type="button" class="btn-key-white btn-key-b"></button>
-            <button type="button" class="btn-key-white btn-key-c-high"></button>
+            <button type="button" id="btn-key-c-low" class="btn-key-white btn-key-c-low"></button>
+            <button type="button" id="btn-key-c-sharp" class="btn-key-black btn-key-c-sharp"></button>
+            <button type="button" id="btn-key-d"class="btn-key-white btn-key-d"></button>
+            <button type="button" id="btn-key-d-sharp"class="btn-key-black btn-key-d-sharp"></button>
+            <button type="button" id="btn-key-e"class="btn-key-white btn-key-e"></button>
+            <button type="button" id="btn-key-f"class="btn-key-white btn-key-f"></button>
+            <button type="button" id="btn-key-f-sharp"class="btn-key-black btn-key-f-sharp"></button>
+            <button type="button" id="btn-key-g"class="btn-key-white btn-key-g"></button>
+            <button type="button" id="btn-key-g-sharp" class="btn-key-black btn-key-g-sharp"></button>
+            <button type="button" id="btn-key-a" class="btn-key-white btn-key-a"></button>
+            <button type="button" id="btn-key-a-sharp" class="btn-key-black btn-key-a-sharp"></button>
+            <button type="button" id="btn-key-b" class="btn-key-white btn-key-b"></button>
+            <button type="button" id="btn-key-c-high" class="btn-key-white btn-key-c-high"></button>
         </div>
 
 
         <footer>
-
             <div class="footer">
                 <span class="footer-item footer-text ">
                     Made by Ben Vessely. 
