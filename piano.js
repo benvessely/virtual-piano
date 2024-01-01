@@ -13,6 +13,13 @@ function ready() {
     };
 }
 
+/* Do I need a function for this? No idea. */ 
+function createAudioContext() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    return audioContext; 
+} 
+
 function handleNoteClick(targetButton) { 
-    // TODO 
+    const c4Audio= new Audio('sounds/c4-virtual-piano.mp3'); 
+    // c4Audio.play(); 
 }
