@@ -1,21 +1,20 @@
 function setUp() { 
     const c4Audio = new Audio('sounds/c4-virtual-piano.mp3');
     c4Audio.load();
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let domContentLoaded = false; 
     let loadedMetaData = false; 
 
     function checkReadyState() {
         if (domContentLoaded && loadedMetaData) {
-            // Both DOM content and metadata are loaded, proceed with the code
-            console.log(`c4Audio.duration = ${c4Audio.duration}`); //DB
-            // const buffer = audioContext.createBuffer(
-            //     1,
-            //     audioContext.sampleRate * c4Audio.duration,
-            //     audioContext.sampleRate
-            // );
+            
+            c4Button = document.getElementsByClassName("btn-key-white")[0]; 
+            c4Button.addEventListener("click", () => { 
+                c4Audio.play();
+                // TODO Stop the audio or something I guess? 
+            }) 
         }
     }
+    
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
@@ -39,12 +38,6 @@ function setUp() {
     }
 
 }
-
-// /* Do I need a function for this? No idea. */ 
-// function createAudioContext() {
-//     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-//     return audioContext;
-// } 
 
 
 function handleNoteClick(targetButton) { 
