@@ -14,9 +14,9 @@
     --white-key-height-unitless: 80; 
     /* --white-key-scale: 1.2;  */
 
-    --black-key-width: 5.75%; 
-    --black-key-height: 60%; 
-    --black-key-width-unitless: 5.75; 
+    --black-key-width: 6%; 
+    --black-key-height: 55%; 
+    --black-key-width-unitless: 6; 
     --black-key-height-unitless: 55; 
 
     /* Below code puts black keys in the right spot */ 
