@@ -22,15 +22,14 @@ function ready() {
 
     const audioBuffers = createAudioBuffers(audioContext); 
 
+    const primaryGainControl = audioContext.createGain(); 
+    primaryGainControl.gain.setValueAtTime(.05, 0); 
+    primaryGainControl.connect(audioContext.destination); 
+
     // c4Audio.addEventListener('loadedmetadata', function () {
     //     loadedMetaData = true;
     //     checkReadyState();
     // });
-
-    // Flag variable for our check later. 
-    
-
-    // Check to make sure page is loaded before trying to add event listeners to buttons.
 
     // Adds event listeners to buttons 
     var pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
@@ -43,15 +42,22 @@ function ready() {
             // c4Audio.play(); 
         });
     }
+
 } 
 
-function createAudioBuffers() { 
 
-    // const buffer = audioContext.createBuffer(
+function createAudioBuffers(audioContext) { 
+
+    const c4AudioURL = "https://github.com/benvessely/virtual-piano/blob/main/sounds/c4-virtual-piano.mp3";
+    const c4AudioFetch = fetch(c4AudioURL);  
+
+    console.log(`We are printing c4AudioFetch promise: ${c4AudioFetch}`);
+
+    // const c4Buffer = audioContext.createBuffer(
     //     1,
     //     audioContext.sampleRate * c4Audio.duration,
     //     audioContext.sampleRate
-    // );
+    // ); 
 }
 
 
@@ -59,7 +65,5 @@ function handleNoteClick(targetButton) {
     // TODO 
 }
 
-
-setUp(); 
 
 
