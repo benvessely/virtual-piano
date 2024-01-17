@@ -51,6 +51,7 @@ function createAudioBuffers(audioContext) {
     const c4AudioURL = "https://github.com/benvessely/virtual-piano/blob/main/sounds/c4-virtual-piano.mp3";
     const c4AudioFetch = fetch(c4AudioURL);  
 
+    console.log("TEST TEST");
     console.log(`We are printing c4AudioFetch promise: ${c4AudioFetch}`);
 
     // const c4Buffer = audioContext.createBuffer(
