@@ -2,17 +2,22 @@ const noteNames = [
     "c4"
 ];
 
+
+
 // Code below to check to make sure DOM content loaded before adding event listeners.
-let domContentLoaded = false; 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-        domContentLoaded = true;
-        ready();
+    document.addEventListener('DOMContentLoaded', () => {
+        ready()
     });
 } else {
-    domContentLoaded = true;
     ready();
 }
+
+// function startButton() {
+//     const startButton = document.createElement('button'); 
+//     startButton.setAttribute('type', 'button'); 
+//     startButton.addEventListener('click', ready()); 
+// }
 
 function ready() { 
     // const c4Audio = new Audio('sounds/c4-virtual-piano.mp3');
@@ -48,12 +53,23 @@ function ready() {
 
 function createAudioBuffers(audioContext) { 
 
-    const c4AudioURL = "https://github.com/benvessely/virtual-piano/blob/main/sounds/c4-virtual-piano.mp3";
-    const c4AudioFetch = fetch(c4AudioURL);  
+    // const c4AudioURL = "https://corsproxy.io/https://github.com/benvessely/virtual-piano/blob/main/sounds/c4-virtual-piano.mp;";
+    const res = await fetch('sounds/c4-virtual-piano.mp3');
+        // .catch((error) => { 
+        //     console.error(error); 
+        //     return 
+        // })
+    
+    // Possibly working code below? 
+    // const c4AudioURL = "https://github.com/benvessely/virtual-piano/blob/main/sounds/c4-virtual-piano.mp3";
+    // const c4AudioFetch = fetch(c4AudioURL, {mode: 'no-cors'})
+    //     .catch((error) => { 
+    //         console.error(error); 
+    //         return 
+    //     })
 
-    console.log("TEST TEST");
-    console.log(`We are printing c4AudioFetch promise: ${c4AudioFetch}`);
-
+    
+    // Code to create buffer 
     // const c4Buffer = audioContext.createBuffer(
     //     1,
     //     audioContext.sampleRate * c4Audio.duration,
@@ -63,7 +79,7 @@ function createAudioBuffers(audioContext) {
 
 
 function handleNoteClick(targetButton) { 
-    // TODO 
+    console.log("Clicked key");
 }
 
 
