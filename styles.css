@@ -45,7 +45,7 @@
 }
 
 body, html {
-    background-color: #b800b830;
+    background-color: #db01db30;
     min-height: 100vh;
     display: flex; 
     flex-direction: column;
@@ -147,7 +147,9 @@ body, html {
     left: var(--a-sharp-left); 
 }
 
-
+.start-button {
+    
+}
 
 .footer { 
     /* Below aligns without display flex  */
