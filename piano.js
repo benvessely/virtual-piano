@@ -53,13 +53,27 @@ function ready() {
 
 function createAudioBuffers(audioContext) { 
 
+    // Array to hold all of the arrayBuffers
+    let returnArray = [];
     // const c4AudioURL = "https://corsproxy.io/https://github.com/benvessely/virtual-piano/blob/main/sounds/c4-virtual-piano.mp;";
-    const res = await fetch('sounds/c4-virtual-piano.mp3');
-        // .catch((error) => { 
-        //     console.error(error); 
-        //     return 
-        // })
-    
+    // let c4ArrayBuffer; 
+    const c4AudioFetch = fetch('sounds/c4-virtual-piano.mp3') 
+        .then((response) => {
+            c4ArrayBufferPromise = response.arrayBuffer();
+            return c4ArrayBufferPromise
+            // console.log(`c4ArrayBuffer = ${c4ArrayBuffer}`); //DB 
+            // returnArray.push(c4ArrayBuffer);
+            // console.log(`returnArray = ${returnArray}`); //DB 
+            // return returnArray;
+        })
+        .then((c4arrayBuffer) => {
+            returnArray.push(c4arrayBuffer);
+        })
+        .catch((error) => { 
+            console.error(error); 
+            return 
+        })
+        
     // Possibly working code below? 
     // const c4AudioURL = "https://github.com/benvessely/virtual-piano/blob/main/sounds/c4-virtual-piano.mp3";
     // const c4AudioFetch = fetch(c4AudioURL, {mode: 'no-cors'})
@@ -68,13 +82,14 @@ function createAudioBuffers(audioContext) {
     //         return 
     //     })
 
-    
     // Code to create buffer 
     // const c4Buffer = audioContext.createBuffer(
     //     1,
     //     audioContext.sampleRate * c4Audio.duration,
     //     audioContext.sampleRate
     // ); 
+
+    return returnArray;
 }
 
 
