@@ -27,15 +27,15 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             this.primaryGainControl.gain.setValueAtTime(gainValue, 0); 
             this.primaryGainControl.connect(audioContext.destination); 
             console.log("At end of createPrimaryGain body"); //DB 
+        },
+        playNote: function() { 
+            console.log("We are in the playNote body"); 
+            const c4Source = this.APAudioContext.createBufferSource(); 
+            c4Source.buffer = this.APAudioBuffers[0]; 
+            c4Source.connect(this.primaryGainControl); 
+            c4Source.start(); 
+            setTimeout(() => c4Source.stop(), 2000); 
         }
-        // playNote: function() { 
-        //     console.log("We are in the playNote body"); 
-        //     const c4Source = this.APAudioContext.createBufferSource(); 
-        //     c4Source.buffer = this.APAudioBuffers[0]; 
-        //     c4Source.connect(primaryGainControl); 
-        //     c4Source.start(); 
-        //     setTimeout(() => c4Source.stop(), 2000); 
-        // }
     }
     return audioPlayer
 }
@@ -63,7 +63,7 @@ function ready() {
     for (var i = 0; i < pianoKeys.length; i++) {
         var button = pianoKeys[i];
         button.addEventListener('mousedown', () => { 
-            // audioPlayer.playNote(); 
+            audioPlayer.playNote(); 
             // Testing code below 
             // const c4Source = audioContext.createBufferSource(); 
             // c4Source.buffer = audioBuffers[0]; 
