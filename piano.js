@@ -18,17 +18,40 @@ if (document.readyState === 'loading') {
 //     startButton.addEventListener('click', ready()); 
 // }
 
+function GenerateAudioPlayer(audioBuffers, audioContext) {
+    const audioPlayer = { 
+        APAudioBuffers: audioBuffers, 
+        APAudioContext: audioContext, 
+        createPrimaryGain: function(gainValue) { 
+            this.primaryGainControl = this.APAudioContext.createGain(); 
+            this.primaryGainControl.gain.setValueAtTime(gainValue, 0); 
+            this.primaryGainControl.connect(audioContext.destination); 
+            console.log("At end of createPrimaryGain body"); //DB 
+        }
+        // playNote: function() { 
+        //     console.log("We are in the playNote body"); 
+        //     const c4Source = this.APAudioContext.createBufferSource(); 
+        //     c4Source.buffer = this.APAudioBuffers[0]; 
+        //     c4Source.connect(primaryGainControl); 
+        //     c4Source.start(); 
+        //     setTimeout(() => c4Source.stop(), 2000); 
+        // }
+    }
+    return audioPlayer
+}
+
 function ready() { 
     // const c4Audio = new Audio('sounds/c4-virtual-piano.mp3');
     // c4Audio.load();
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     // let loadedMetaData = false; 
+    const audioBuffers = CreateAudioBuffers(audioContext); 
+    const audioPlayer = GenerateAudioPlayer(audioBuffers, audioContext); 
+    audioPlayer.createPrimaryGain(.50);  
 
-    const audioBuffers = createAudioBuffers(audioContext); 
-
-    const primaryGainControl = audioContext.createGain(); 
-    primaryGainControl.gain.setValueAtTime(.50, 0); 
-    primaryGainControl.connect(audioContext.destination); 
+    // const primaryGainControl = audioContext.createGain(); 
+    // primaryGainControl.gain.setValueAtTime(.50, 0); 
+    // primaryGainControl.connect(audioContext.destination); 
 
     // c4Audio.addEventListener('loadedmetadata', function () {
     //     loadedMetaData = true;
@@ -39,20 +62,22 @@ function ready() {
     var pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
     for (var i = 0; i < pianoKeys.length; i++) {
         var button = pianoKeys[i];
-        button.addEventListener('mousedown', handleNoteClick
+        button.addEventListener('mousedown', () => { 
+            // audioPlayer.playNote(); 
             // Testing code below 
             // const c4Source = audioContext.createBufferSource(); 
             // c4Source.buffer = audioBuffers[0]; 
             // c4Source.connect(primaryGainControl); 
             // c4Source.start(); 
             // setTimeout(() => c4Source.stop(), 2000); 
-        );
+            console.log("At end of mousedown event body"); //DB
+        });
     }
 } 
 
 
 // Creates the AudioBuffers from the mp3 Files, one for every note in array noteNames
-function createAudioBuffers(audioContext) { 
+function CreateAudioBuffers(audioContext) { 
     // Array to hold all of the arrayBuffers
     let returnArray = [];
     // const c4AudioURL = "https://corsproxy.io/https://github.com/benvessely/virtual-piano/blob/main/sounds/c4-virtual-piano.mp;";
