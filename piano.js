@@ -27,7 +27,7 @@ function ready() {
     const audioBuffers = createAudioBuffers(audioContext); 
 
     const primaryGainControl = audioContext.createGain(); 
-    primaryGainControl.gain.setValueAtTime(.05, 0); 
+    primaryGainControl.gain.setValueAtTime(.50, 0); 
     primaryGainControl.connect(audioContext.destination); 
 
     // c4Audio.addEventListener('loadedmetadata', function () {
@@ -39,14 +39,15 @@ function ready() {
     var pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
     for (var i = 0; i < pianoKeys.length; i++) {
         var button = pianoKeys[i];
-        button.addEventListener('mousedown', () => {
-            // c4Audio.volume = 1; 
-            // c4Audio.pause(); 
-            // c4Audio.currentTime = 0; 
-            // c4Audio.play(); 
-        });
+        button.addEventListener('mousedown', handleNoteClick
+            // Testing code below 
+            // const c4Source = audioContext.createBufferSource(); 
+            // c4Source.buffer = audioBuffers[0]; 
+            // c4Source.connect(primaryGainControl); 
+            // c4Source.start(); 
+            // setTimeout(() => c4Source.stop(), 2000); 
+        );
     }
-
 } 
 
 
@@ -93,8 +94,8 @@ function createAudioBuffers(audioContext) {
 }
 
 
-function handleNoteClick(targetButton) { 
-    console.log("Clicked key");
+function handleNoteClick() { 
+    console.log("in handleNoteClick"); 
 }
 
 
