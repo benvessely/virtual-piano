@@ -25,7 +25,7 @@ async function ready() {
     //     console.log(`Testing audioBuffers promise, we have data = ${data}`); 
     // }); //
     const audioPlayer = GenerateAudioPlayer(audioBuffers, audioContext); 
-    audioPlayer.createPrimaryGain(.50);  
+    audioPlayer.createPrimaryGain(.9);  
 
     // Adds event listeners to buttons 
     var pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
@@ -39,7 +39,7 @@ async function ready() {
             // c4Source.connect(primaryGainControl); 
             // c4Source.start(); 
             // setTimeout(() => c4Source.stop(), 2000); 
-            console.log("At end of mousedown event body"); //DB
+            // console.log("At end of mousedown event body"); //DB
         });
     }
 } 
@@ -47,32 +47,57 @@ async function ready() {
 
 function GenerateAudioPlayer(audioBuffers, audioContext) {
     const audioPlayer = { 
-        APAudioBuffers: audioBuffers, 
-        APAudioContext: audioContext, 
-        createPrimaryGain: function(gainValue) { 
-            this.primaryGainControl = this.APAudioContext.createGain(); 
+        audioBuffers: audioBuffers, 
+        audioContext: audioContext, 
+        createPrimaryGain(gainValue) { 
+            this.primaryGainControl = this.audioContext.createGain(); 
             this.primaryGainControl.gain.setValueAtTime(gainValue, 0); 
             this.primaryGainControl.connect(audioContext.destination); 
-            console.log("At end of createPrimaryGain body"); //DB 
+            // console.log("At end of createPrimaryGain body"); //DB 
         },
-        c4NoteCreation: function() {
-            console.log(`this.APAudioBuffers[0] = ${this.APAudioBuffers[0]} at the start of c4NoteCreation`); 
-            c4Source = this.APAudioContext.createBufferSource();
-            c4Source.buffer = this.APAudioBuffers[0]; 
-            c4Source.connect(this.primaryGainControl);
-            return c4Source; 
+        // createNoteGain: function(bufferSource, gainValue) {
+            
+            
+        // },
+        c4NoteCreation() {
+            // console.log(`this.audioBuffers[0] = ${this.audioBuffers[0]} at the start of c4NoteCreation`); 
+            c4Note = this.audioContext.createBufferSource();
+            c4Note.buffer = this.audioBuffers[0]; 
+            return c4Note; 
         },
-        playNote: function() { 
-            // console.log(`this.c4Source = ${this.c4Source} at the start of playNote`); //DB 
+        playNote() { 
+            console.log(`At start of playNote`); //DB 
             const c4Note = this.c4NoteCreation(); 
+
+            const noteGain = this.audioContext.createGain(); 
+            noteGain.gain.setValueAtTime(1, this.audioContext.currentTime); 
+            c4Note.connect(noteGain); 
+            noteGain.connect(this.primaryGainControl);
             c4Note.start(); 
-            setTimeout(() => {
-                c4Note.stop();
+            
+            // Debug code below 
+            // const releaseTime = 5; 
+            // noteGain.gain.exponentialRampToValueAtTime(
+            //     0.001, 
+            //     this.audioContext.currentTime + releaseTime
+            // );
+
+            // Default behavior of piano is to play note for x time, then do exponential decay after that 
+            setTimeout(() => { 
+                // WHY DOES THIS LINE FIX THINGS??? 
+                // noteGain.gain.setValueAtTime(1, 0); 
+                // releaseTime is time for noteGain to go to 0
+                const releaseTime = 3; 
+                noteGain.gain.exponentialRampToValueAtTime(
+                    .001, 
+                    this.audioContext.currentTime + releaseTime
+                );
             }, 2000); 
-            console.log("We are at end of the playNote body"); //DB
+
+            // console.log("We are at end of the playNote body"); //DB
             // Testing code below 
-            // const c4Source = this.APAudioContext.createBufferSource(); 
-            // c4Source.buffer = this.APAudioBuffers[0]; 
+            // const c4Source = this.audioContext.createBufferSource(); 
+            // c4Source.buffer = this.audioBuffers[0]; 
             // c4Source.connect(this.primaryGainControl); 
             // c4Source.start(); 
             // setTimeout(() => c4Source.stop(), 2000); 
@@ -86,7 +111,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
 async function CreateAudioBuffers(audioContext) { 
     // Array to hold all of the arrayBuffers
     try { 
-        console.log("At start of try block in CreateAudioBuffers"); 
+        // console.log("At start of try block in CreateAudioBuffers"); 
         const returnArray = [];
         const response = await fetch('sounds/c4-virtual-piano.mp3');
         const newArrayBuffer = await response.arrayBuffer();
