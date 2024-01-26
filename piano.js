@@ -1,3 +1,4 @@
+// This array used to create AudioBuffers, as well as for identifying the specific button pressed. 
 const noteNames = [
     "c3", "cSharp3", "d3", "dSharp3", "e3", "f3", "fSharp3", "g3", "gSharp3", "a3", "aSharp3", "b3", "c4"
 ];
@@ -14,16 +15,9 @@ if (document.readyState === 'loading') {
 
 
 async function ready() { 
-    // const c4Audio = new Audio('sounds/c4-virtual-piano.mp3');
-    // c4Audio.load();
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const audioBuffers = await CreateAudioBuffers(audioContext);
-    // console.log(`Do I have access to audioBuffers here? audioBuffers = ${audioBuffers}`); // DB 
-   
-    // DB below 
-    // audioBuffers.then((data) => { 
-    //     console.log(`Testing audioBuffers promise, we have data = ${data}`); 
-    // }); //
+
     const audioPlayer = GenerateAudioPlayer(audioBuffers, audioContext); 
     audioPlayer.createPrimaryGain();  
 
@@ -31,15 +25,8 @@ async function ready() {
     var pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
     for (var i = 0; i < pianoKeys.length; i++) {
         var button = pianoKeys[i];
-        button.addEventListener('mousedown', () => {  
-            audioPlayer.playNote(); 
-            // Testing code below 
-            // const c4Source = audioContext.createBufferSource(); 
-            // c4Source.buffer = audioBuffers[0]; 
-            // c4Source.connect(primaryGainControl); 
-            // c4Source.start(); 
-            // setTimeout(() => c4Source.stop(), 2000); 
-            // console.log("At end of mousedown event body"); //DB
+        button.addEventListener('mousedown', (event) => {  
+            audioPlayer.playNote(event); 
         });
     }
 } 
@@ -55,29 +42,80 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             this.primaryGainControl.connect(audioContext.destination); 
             // console.log("At end of createPrimaryGain body"); //DB 
         },
-        c4NoteCreation() {
-            // console.log(`this.audioBuffers[0] = ${this.audioBuffers[0]} at the start of c4NoteCreation`); 
-            c4Note = this.audioContext.createBufferSource();
-            c4Note.buffer = this.audioBuffers[0]; 
-            return c4Note; 
+        noteCreation(targetId) {
+            // console.log(`this.audioBuffers[0] = ${this.audioBuffers[0]} at the start of c4NoteCreation`); //DB 
+            let audioBuffersIndex; 
+            switch (targetId) { 
+                case "btn-key-c-low": 
+                    audioBuffersIndex = noteNames.indexOf("c3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-c-sharp": 
+                    audioBuffersIndex = noteNames.indexOf("cSharp3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-d": 
+                    audioBuffersIndex = noteNames.indexOf("d3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-d-sharp": 
+                    audioBuffersIndex = noteNames.indexOf("dSharp3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-e": 
+                    audioBuffersIndex = noteNames.indexOf("e3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-f": 
+                    audioBuffersIndex = noteNames.indexOf("f3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-f-sharp": 
+                    audioBuffersIndex = noteNames.indexOf("fSharp3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-g": 
+                    audioBuffersIndex = noteNames.indexOf("g3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-g-sharp": 
+                    audioBuffersIndex = noteNames.indexOf("gSharp3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break;  
+                case "btn-key-a": 
+                    audioBuffersIndex = noteNames.indexOf("a3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-a-sharp": 
+                    audioBuffersIndex = noteNames.indexOf("aSharp3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-b": 
+                    audioBuffersIndex = noteNames.indexOf("b3"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-c-high": 
+                    audioBuffersIndex = noteNames.indexOf("c4"); 
+                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break;   
+            }
+            const noteSource = this.audioContext.createBufferSource();
+            noteSource.buffer = this.audioBuffers[audioBuffersIndex]; 
+            return noteSource; 
         },
-        playNote() { 
+        playNote(event) { 
             console.log(`At start of playNote`); //DB 
-            const c4Note = this.c4NoteCreation(); 
+            // console.log(`event.target = ${event.target}`); //DB 
+
+            // Create a new note, which depends on the id of the button on which the event was triggered. 
+            const newNote = this.noteCreation(event.target.id); 
 
             // Create gain specific to the new note that was just created
             const noteGain = this.audioContext.createGain(); 
             noteGain.gain.setValueAtTime(1, this.audioContext.currentTime); 
-            c4Note.connect(noteGain); 
+            newNote.connect(noteGain); 
             noteGain.connect(this.primaryGainControl);
-            c4Note.start(); 
-            
-            // Debug code below 
-            // const releaseTime = 5; 
-            // noteGain.gain.exponentialRampToValueAtTime(
-            //     0.001, 
-            //     this.audioContext.currentTime + releaseTime
-            // );
+            newNote.start(); 
 
             // Default behavior of piano is to play note for x time, then do exponential decay after that 
             setTimeout(() => { 
@@ -89,20 +127,13 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
                     .001, 
                     this.audioContext.currentTime + releaseTime
                 );
-            }, 2000); 
+            }, 1000); 
 
-            // console.log("We are at end of the playNote body"); //DB
-            // Testing code below 
-            // const c4Source = this.audioContext.createBufferSource(); 
-            // c4Source.buffer = this.audioBuffers[0]; 
-            // c4Source.connect(this.primaryGainControl); 
-            // c4Source.start(); 
-            // setTimeout(() => c4Source.stop(), 2000); 
+            // console.log("We are at end of the playNote body"); //DD
         }
     }
     return audioPlayer
 }
-
 
 async function CreateAudioBuffers(audioContext) { 
     // Creates the AudioBuffers from the mp3 Files, one for every note in array noteNames
