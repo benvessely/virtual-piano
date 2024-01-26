@@ -147,10 +147,6 @@ body, html {
     left: var(--a-sharp-left); 
 }
 
-.start-button {
-    
-}
-
 .footer { 
     /* Below aligns without display flex  */
     /* position: fixed;
