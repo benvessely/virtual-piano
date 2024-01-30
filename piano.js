@@ -43,8 +43,74 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             this.primaryGainControl.connect(audioContext.destination); 
             // console.log("At end of createPrimaryGain body"); //DB 
         },
-        noteCreation(targetId) {
-            // console.log(`this.audioBuffers[0] = ${this.audioBuffers[0]} at the start of c4NoteCreation`); //DB 
+        playNote(event) { 
+            console.log(`At start of playNote`); //DB 
+            // console.log(`event.target = ${event.target}`); //DB 
+
+            // Let the object know that we are playing the note, so the mouse must be down
+            this.mouseDown = true; 
+            // When the mouse is let up, we need to know so we can handle the audio termination 
+            event.target.addEventListener("mouseup", () => { 
+                this.mouseDown = false; 
+            });
+
+            const noteObject = ConstructNoteObject(this.audioContext,
+                this.audioBuffers, event.target.id, this.primaryGainControl); 
+            noteObject.createNote();
+            noteObject.createNoteGain();
+            noteObject.playAudio(); 
+
+            // DEBUG test 
+            // const objectThis = this; 
+
+            // Default behavior of piano is to play note for x time, then do exponential decay after that 
+            // setTimeout(function(noteGain) { 
+            //     // console.log("In the terminateAudio setTimeout"); //DB 
+            //     // TODO Working on this, trying to figure out how to terminate the audio without repeating my code, i.e. using another method? 
+            //     console.log(`In this terminateAudio setTimeout, we have objectThis = ${objectThis}`); // DB 
+            //     objectThis.terminateAudio(noteGain);  
+
+            //     // Only terminate audio if mouse has come up 
+            //     // if (this.mouseDown === false) { 
+            //     //     console.log("In the this.mouseDown===false block"); //DB 
+            //     //     // Code block below responsible for audio termination 
+            //     //     // // WHY DOES THIS LINE FIX THINGS??? TODO CHECK THIS 
+            //     //     // noteGain.gain.setValueAtTime(1, 0); 
+            //     //     // // releaseTime is time for noteGain to go to 0
+            //     //     // const releaseTime = 2; 
+            //     //     // noteGain.gain.exponentialRampToValueAtTime(
+            //     //     //     .001, 
+            //     //     //     this.audioContext.currentTime + releaseTime
+            //     //     // );
+            //     // } 
+            //     // // Else if the mouse has not yet come up, add another EventListener? 
+            //     // else { 
+            //     //     event.target.addEventListener("mouseup", () => {
+             
+            console.log("We are at end of the playNote body"); //DB
+        },
+        terminateAudio(noteGain) { 
+            noteGain.gain.setValueAtTime(1, 0); 
+            // releaseTime is time for noteGain to go to 0
+            const releaseTime = 2; 
+            noteGain.gain.exponentialRampToValueAtTime(
+                .001, 
+                this.audioContext.currentTime + releaseTime
+            );
+        }
+    }
+    return audioPlayer
+}
+
+
+function ConstructNoteObject(audioContext, audioBuffers, targetId, primaryGainControl) { 
+    const note = { 
+        audioContext: audioContext, 
+        audioBuffers: audioBuffers, 
+        targetId: targetId, 
+        primaryGainControl: primaryGainControl,
+        createNote() { 
+            console.log(`At the start of note method createNote()`); //DB 
             let audioBuffersIndex; 
             switch (targetId) { 
                 case "btn-key-c-low": 
@@ -100,76 +166,39 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
                     // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
                     break;   
             }
+            // console.log(`At end of note method createNote(), we have audioBuffersIndex = ${audioBuffersIndex}`); //DB 
             const noteSource = this.audioContext.createBufferSource();
             noteSource.buffer = this.audioBuffers[audioBuffersIndex]; 
-            return noteSource; 
+            // console.log(`Do we get to this point in createNote?`); //DB 
+            this.noteSource = noteSource; 
         },
-        playNote(event) { 
-            console.log(`At start of playNote`); //DB 
-            // console.log(`event.target = ${event.target}`); //DB 
-
-            // Let the object know that we are playing the note, so the mouse must be down
-            this.mouseDown = true; 
-            // When the mouse is let up, we need to know so we can handle the audio termination 
-            event.target.addEventListener("mouseup", () => { 
-                this.mouseDown = false; 
-            });
-
-            // Create a new note, which depends on the id of the button on which the event was triggered. 
-            const newNote = this.noteCreation(event.target.id); 
-
-            // Create gain specific to the new note that was just created
-            const noteGain = this.audioContext.createGain(); 
-            noteGain.gain.setValueAtTime(1, this.audioContext.currentTime); 
-            newNote.connect(noteGain); 
-            noteGain.connect(this.primaryGainControl);
-            newNote.start(); 
-
-            // DEBUG test
-            const objectThis = this; 
-
-            // Default behavior of piano is to play note for x time, then do exponential decay after that 
-            setTimeout(function(noteGain) { 
-                // console.log("In the terminateAudio setTimeout"); //DB 
-                // TODO Working on this, trying to figure out how to terminate the audio without repeating my code, i.e. using another method? 
-                console.log(`In this terminateAudio setTimeout, we have objectThis = ${objectThis}`); // DB 
-                objectThis.terminateAudio(noteGain);  
-
-                // Only terminate audio if mouse has come up 
-                // if (this.mouseDown === false) { 
-                //     console.log("In the this.mouseDown===false block"); //DB 
-                //     // Code block below responsible for audio termination 
-                //     // // WHY DOES THIS LINE FIX THINGS??? TODO CHECK THIS 
-                //     // noteGain.gain.setValueAtTime(1, 0); 
-                //     // // releaseTime is time for noteGain to go to 0
-                //     // const releaseTime = 2; 
-                //     // noteGain.gain.exponentialRampToValueAtTime(
-                //     //     .001, 
-                //     //     this.audioContext.currentTime + releaseTime
-                //     // );
-                // } 
-                // // Else if the mouse has not yet come up, add another EventListener? 
-                // else { 
-                //     event.target.addEventListener("mouseup", () => {
-                //         console.log("In the else statement"); //DB 
-                //     })
-                // }
-            }, 1000); 
-
-            console.log("We are at end of the playNote body"); //DB
+        createNoteGain() { 
+            console.log(`At start of note method createNoteGain()`); //DB 
+            // Create gain specific to the new note
+            this.noteGain = this.audioContext.createGain(); 
+            // console.log(`In createNoteGain, this.noteGain = ${this.noteGain}`); //DB 
+            // Above confirms that we are indeed creating a GainNode object. //DB 
+            this.noteGain.gain.setValueAtTime(1, this.audioContext.currentTime); 
+            this.noteSource.connect(this.noteGain); 
+            this.noteGain.connect(this.primaryGainControl);
         },
-        terminateAudio(noteGain) { 
-            noteGain.gain.setValueAtTime(1, 0); 
+        playAudio () { 
+            this.noteSource.start(); 
+        },
+        terminateAudio() { 
+            console.log(`At start of note method terminateAudio()`); //DB 
+            this.noteGain.gain.setValueAtTime(1, 0); 
             // releaseTime is time for noteGain to go to 0
             const releaseTime = 2; 
-            noteGain.gain.exponentialRampToValueAtTime(
+            this.noteGain.gain.exponentialRampToValueAtTime(
                 .001, 
                 this.audioContext.currentTime + releaseTime
             );
         }
     }
-    return audioPlayer
+    return note; 
 }
+
 
 async function CreateAudioBuffers(audioContext) { 
     // Creates the AudioBuffers from the mp3 Files, one for every note in array noteNames
