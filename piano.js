@@ -17,7 +17,6 @@ if (document.readyState === 'loading') {
 async function ready() { 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const audioBuffers = await CreateAudioBuffers(audioContext);
-
     const audioPlayer = GenerateAudioPlayer(audioBuffers, audioContext); 
     audioPlayer.createPrimaryGain();  
 
@@ -36,6 +35,8 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
     const audioPlayer = { 
         audioBuffers: audioBuffers, 
         audioContext: audioContext, 
+        // Tracker variable to help with key release synchronization with audio termination
+        mouseDown: false, 
         createPrimaryGain(gainValue=1) { 
             this.primaryGainControl = this.audioContext.createGain(); 
             this.primaryGainControl.gain.setValueAtTime(gainValue, 0); 
@@ -48,55 +49,55 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             switch (targetId) { 
                 case "btn-key-c-low": 
                     audioBuffersIndex = noteNames.indexOf("c3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
                     break; 
                 case "btn-key-c-sharp": 
                     audioBuffersIndex = noteNames.indexOf("cSharp3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
                     break; 
                 case "btn-key-d": 
                     audioBuffersIndex = noteNames.indexOf("d3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
                     break; 
                 case "btn-key-d-sharp": 
                     audioBuffersIndex = noteNames.indexOf("dSharp3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
                     break; 
                 case "btn-key-e": 
                     audioBuffersIndex = noteNames.indexOf("e3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
                     break; 
                 case "btn-key-f": 
                     audioBuffersIndex = noteNames.indexOf("f3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
                     break; 
                 case "btn-key-f-sharp": 
                     audioBuffersIndex = noteNames.indexOf("fSharp3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
                     break; 
                 case "btn-key-g": 
                     audioBuffersIndex = noteNames.indexOf("g3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
                     break; 
                 case "btn-key-g-sharp": 
                     audioBuffersIndex = noteNames.indexOf("gSharp3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
                     break;  
                 case "btn-key-a": 
                     audioBuffersIndex = noteNames.indexOf("a3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
                     break; 
                 case "btn-key-a-sharp": 
                     audioBuffersIndex = noteNames.indexOf("aSharp3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
                     break; 
                 case "btn-key-b": 
                     audioBuffersIndex = noteNames.indexOf("b3"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
                     break; 
                 case "btn-key-c-high": 
                     audioBuffersIndex = noteNames.indexOf("c4"); 
-                    console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
                     break;   
             }
             const noteSource = this.audioContext.createBufferSource();
@@ -106,6 +107,13 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
         playNote(event) { 
             console.log(`At start of playNote`); //DB 
             // console.log(`event.target = ${event.target}`); //DB 
+
+            // Let the object know that we are playing the note, so the mouse must be down
+            this.mouseDown = true; 
+            // When the mouse is let up, we need to know so we can handle the audio termination 
+            event.target.addEventListener("mouseup", () => { 
+                this.mouseDown = false; 
+            });
 
             // Create a new note, which depends on the id of the button on which the event was triggered. 
             const newNote = this.noteCreation(event.target.id); 
@@ -117,19 +125,47 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             noteGain.connect(this.primaryGainControl);
             newNote.start(); 
 
+            // DEBUG test
+            const objectThis = this; 
+
             // Default behavior of piano is to play note for x time, then do exponential decay after that 
-            setTimeout(() => { 
-                // WHY DOES THIS LINE FIX THINGS??? TODO CHECK THIS 
-                noteGain.gain.setValueAtTime(1, 0); 
-                // releaseTime is time for noteGain to go to 0
-                const releaseTime = 2; 
-                noteGain.gain.exponentialRampToValueAtTime(
-                    .001, 
-                    this.audioContext.currentTime + releaseTime
-                );
+            setTimeout(function(noteGain) { 
+                // console.log("In the terminateAudio setTimeout"); //DB 
+                // TODO Working on this, trying to figure out how to terminate the audio without repeating my code, i.e. using another method? 
+                console.log(`In this terminateAudio setTimeout, we have objectThis = ${objectThis}`); // DB 
+                objectThis.terminateAudio(noteGain);  
+
+                // Only terminate audio if mouse has come up 
+                // if (this.mouseDown === false) { 
+                //     console.log("In the this.mouseDown===false block"); //DB 
+                //     // Code block below responsible for audio termination 
+                //     // // WHY DOES THIS LINE FIX THINGS??? TODO CHECK THIS 
+                //     // noteGain.gain.setValueAtTime(1, 0); 
+                //     // // releaseTime is time for noteGain to go to 0
+                //     // const releaseTime = 2; 
+                //     // noteGain.gain.exponentialRampToValueAtTime(
+                //     //     .001, 
+                //     //     this.audioContext.currentTime + releaseTime
+                //     // );
+                // } 
+                // // Else if the mouse has not yet come up, add another EventListener? 
+                // else { 
+                //     event.target.addEventListener("mouseup", () => {
+                //         console.log("In the else statement"); //DB 
+                //     })
+                // }
             }, 1000); 
 
-            // console.log("We are at end of the playNote body"); //DD
+            console.log("We are at end of the playNote body"); //DB
+        },
+        terminateAudio(noteGain) { 
+            noteGain.gain.setValueAtTime(1, 0); 
+            // releaseTime is time for noteGain to go to 0
+            const releaseTime = 2; 
+            noteGain.gain.exponentialRampToValueAtTime(
+                .001, 
+                this.audioContext.currentTime + releaseTime
+            );
         }
     }
     return audioPlayer
@@ -150,7 +186,8 @@ async function CreateAudioBuffers(audioContext) {
             const response = await fetch(soundFile);
             const newArrayBuffer = await response.arrayBuffer();
             const newAudioBuffer = await audioContext.decodeAudioData(newArrayBuffer);
-            returnArray.push(newAudioBuffer)
+            // console.log(`newAudioBuffer.length = ${newAudioBuffer.length / 44100}`); //DB 
+            returnArray.push(newAudioBuffer);
         }
         // console.log(`returnArray.length = ${returnArray.length}`); //DB 
 
