@@ -53,18 +53,21 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             // Flag to check if mouseup occurred within one second after mousedown
             let mouseUpWithinOneSecond = false;
 
-            function handleMouseUp() {{ 
+            const handleMouseUp = () => { 
                 console.log(`In the mouseup eventListener function`); //DB 
                 this.mouseDown = false; 
                 console.log(`At end of mouseup eventListener function, this.mouseDown = ${this.mouseDown}`); //DB 
-            }}
+                mouseUpWithinOneSecond = true; 
+            }
 
             // When the mouse is let up, we need to know so we can handle the audio termination 
-            event.target.addEventListener("mouseup", () => { 
-                console.log(`In the mouseup eventListener function`); //DB 
-                this.mouseDown = false; 
-                console.log(`At end of mouseup eventListener function, this.mouseDown = ${this.mouseDown}`); //DB 
-            });
+            // event.target.addEventListener("mouseup", () => { 
+            //     console.log(`In the mouseup eventListener function`); //DB 
+            //     this.mouseDown = false; 
+            //     console.log(`At end of mouseup eventListener function, this.mouseDown = ${this.mouseDown}`); //DB 
+            // });
+
+            event.target.addEventListener("mouseup", handleMouseUp); 
 
             const noteObject = ConstructNoteObject(this.audioContext,
                 this.audioBuffers, event.target.id, this.primaryGainControl); 
@@ -74,20 +77,29 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
 
             // Default behavior of piano is to play note for x time, then do exponential decay after that 
             setTimeout(() => { 
-                // console.log("In the terminateAudio setTimeout"); //DB 
-                // TODO Working on this, trying to figure out how to terminate the audio without repeating my code, i.e. using another method? 
-                console.log(`In this terminateAudio setTimeout function, this.mouseDown = ${this.mouseDown}`); // DB 
-                // noteObject.terminateAudio();  
+                console.log("In the terminateAudio setTimeout"); //DB 
+
+                if (this.mouseDown === false) { 
+                    console.log("In the this.mouseDown === false block"); //DB
+                    noteObject.terminateAudio();
+                }
 
                 // Only terminate audio if mouse has come up 
-                if (this.mouseDown === false) { 
-                    console.log("In the this.mouseDown === false block"); //DB 
-                    noteObject.terminateAudio(); 
-                } 
-                // Else if the mouse has not yet come up, add another EventListener? 
-                // else { 
-                //     event.target.addEventListener("mouseup", () => {
+                // if (this.mouseDown === false) { 
+                //     console.log("In the this.mouseDown === false block"); //DB 
+                //     noteObject.terminateAudio(); 
+                // } 
+
+                // If we have made it past one second and the user still has mouse down, then we need to make changes to what we do when the mouse does come up
+                event.target.removeEventListener("mouseup", handleMouseUp);
+                event.target.addEventListener("mouseup", () => {
+                    noteObject.terminateAudio();
+                })
+                
             }, 1000);
+            
+            
+            
              
             console.log("We are at end of the playNote body"); //DB
         },
@@ -182,7 +194,7 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, primaryGainCo
             console.log(`At start of note method terminateAudio()`); //DB 
             this.noteGain.gain.setValueAtTime(1, 0); 
             // releaseTime is time for noteGain to go to 0
-            const releaseTime = 2; 
+            const releaseTime = 1.5; 
             this.noteGain.gain.exponentialRampToValueAtTime(
                 .001, 
                 this.audioContext.currentTime + releaseTime
