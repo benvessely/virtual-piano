@@ -44,30 +44,33 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             // console.log("At end of createPrimaryGain body"); //DB 
         },
         playNote(event) { 
-            console.log(`At start of playNote`); //DB 
+            // console.log(`At start of playNote`); //DB 
             // console.log(`event.target = ${event.target}`); //DB 
 
-            // Let the object know that we are playing the note, so the mouse must be down
+            // Tracker variable that says that since we are playing the note, the mouse must be down
             this.mouseDown = true; 
+            // Tracker variable: since we are playing note, the mouse must be over the button. 
+            this.mouseIn = true; 
 
             // Flag to check if mouseup occurred within one second after mousedown
             let mouseUpWithinOneSecond = false;
+            // Flag to check if mouseout
+            let mouseOutWithinOneSecond = false; 
 
             const handleMouseUp = () => { 
-                console.log(`In the mouseup eventListener function`); //DB 
+                console.log(`At start of handleMouseUp`); //DB 
                 this.mouseDown = false; 
-                console.log(`At end of mouseup eventListener function, this.mouseDown = ${this.mouseDown}`); //DB 
-                mouseUpWithinOneSecond = true; 
+                // mouseUpWithinOneSecond = true; 
             }
 
-            // When the mouse is let up, we need to know so we can handle the audio termination 
-            // event.target.addEventListener("mouseup", () => { 
-            //     console.log(`In the mouseup eventListener function`); //DB 
-            //     this.mouseDown = false; 
-            //     console.log(`At end of mouseup eventListener function, this.mouseDown = ${this.mouseDown}`); //DB 
-            // });
+            const handleMouseOut = () =>  {
+                console.log(`At start of handleMouseOut`); //DB 
+                this.mouseIn = false; 
+                // mouseOutWithinOneSecond = true; 
+            }
 
             event.target.addEventListener("mouseup", handleMouseUp); 
+            event.target.addEventListener("mouseout", handleMouseOut); 
 
             const noteObject = ConstructNoteObject(this.audioContext,
                 this.audioBuffers, event.target.id, this.primaryGainControl); 
@@ -77,31 +80,30 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
 
             // Default behavior of piano is to play note for x time, then do exponential decay after that 
             setTimeout(() => { 
-                console.log("In the terminateAudio setTimeout"); //DB 
+                // console.log("In the terminateAudio setTimeout"); //DB 
+                console.log(`In the terminateAudio setTimeout, this.mouseIn = ${this.mouseIn}`); //DB 
 
-                if (this.mouseDown === false) { 
-                    console.log("In the this.mouseDown === false block"); //DB
+                if (this.mouseDown === false || this.mouseIn === false) { 
+                    console.log("In the mouseDown and mouseIn check block"); //DB
                     noteObject.terminateAudio();
                 }
 
-                // Only terminate audio if mouse has come up 
-                // if (this.mouseDown === false) { 
-                //     console.log("In the this.mouseDown === false block"); //DB 
-                //     noteObject.terminateAudio(); 
-                // } 
-
                 // If we have made it past one second and the user still has mouse down, then we need to make changes to what we do when the mouse does come up
                 event.target.removeEventListener("mouseup", handleMouseUp);
+                // Same for if mouse goes out 
+                event.target.removeEventListener("mouseout", handleMouseOut);
+
+                // Add back appropriate event listeners
                 event.target.addEventListener("mouseup", () => {
+                    noteObject.terminateAudio();
+                })
+                event.target.addEventListener("mouseout", () => { 
                     noteObject.terminateAudio();
                 })
                 
             }, 1000);
             
-            
-            
-             
-            console.log("We are at end of the playNote body"); //DB
+            // console.log("We are at end of the playNote body"); //DB
         },
     }
     return audioPlayer
@@ -115,7 +117,7 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, primaryGainCo
         targetId: targetId, 
         primaryGainControl: primaryGainControl,
         createNote() { 
-            console.log(`At the start of note method createNote()`); //DB 
+            // console.log(`At the start of note method createNote()`); //DB 
             let audioBuffersIndex; 
             switch (targetId) { 
                 case "btn-key-c-low": 
@@ -178,7 +180,7 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, primaryGainCo
             this.noteSource = noteSource; 
         },
         createNoteGain() { 
-            console.log(`At start of note method createNoteGain()`); //DB 
+            // console.log(`At start of note method createNoteGain()`); //DB 
             // Create gain specific to the new note
             this.noteGain = this.audioContext.createGain(); 
             // console.log(`In createNoteGain, this.noteGain = ${this.noteGain}`); //DB 
@@ -232,11 +234,3 @@ async function CreateAudioBuffers(audioContext) {
         return; 
     } 
 }
-
-
-function handleNoteClick() { 
-    console.log("in handleNoteClick"); 
-}
-
-
-
