@@ -74,9 +74,8 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             console.log(`At start of playNote`); //DB 
             // console.log(`event.target = ${event.target}`); //DB 
 
-            // Tracker variable that says that since we are playing the note, the mouse must be down
+            // Both of these things are true when we first play the note
             this.mouseDown = true; 
-            // Tracker variable: since we are playing note, the mouse must be over the button. 
             this.mouseIn = true; 
 
             event.target.addEventListener("mouseup", () => {
@@ -100,27 +99,36 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
                 if (this.mouseDown === false || this.mouseIn === false) { 
                     console.log("In the mouseDown and mouseIn check block"); //DB
                     noteObject.terminateAudio();
-                }
+                } else {
+                    const handleMouseUpTerminate = () => {
+                        console.log(`In handleMouseUpTerminate`); //DB 
+                        noteObject.terminateAudio();
+                        event.target.removeEventListener(
+                            "mouseout", handleMouseOutTerminate);
+                        return;
+                    }
 
-                // If we have made it past one second and the user still has mouse down, then we need to make changes to what we do when the mouse does come up
-                // event.target.removeEventListener("mouseup", handleMouseUp);
-                // // Same for if mouse goes out 
-                // event.target.removeEventListener("mouseout", handleMouseOut);
+                    const handleMouseOutTerminate = () =>  {
+                        console.log(`In handleMouseOutTerminate`); //DB 
+                        noteObject.terminateAudio();
+                        event.target.removeEventListener(
+                            "mouseup", handleMouseUpTerminate); 
+                        return; 
+                    }
 
-                const handleMouseUpTerminate = () => {
-                    noteObject.terminateAudio();
-                    console.log(`In mouseup eventlistener, noteObject = ${noteObject}`); //DB 
-                    return;
+                    // New event listeners to terminate audio at right time if past one second. Previous event listeners still exist. 
+                    event.target.addEventListener(
+                        "mouseup",
+                        handleMouseUpTerminate,
+                        { once: true }
+                    );
+
+                    event.target.addEventListener(
+                        "mouseout", 
+                        handleMouseOutTerminate,
+                        { once: true }
+                    );
                 }
-                // New event listeners to terminate audio at right time if past one second. Previous event listeners still exist. 
-                event.target.addEventListener("mouseup", () => {
-                    
-                }, { once: true });
-                event.target.addEventListener("mouseout", () => {
-                    noteObject.terminateAudio();
-                    console.log(`In mouseout eventlistener, noteObject = ${noteObject}`); //DB 
-                    return;
-                }, { once: true });
             }, 1000);
             
             // console.log("We are at end of the playNote body"); //DB
