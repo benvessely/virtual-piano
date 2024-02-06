@@ -29,32 +29,31 @@ async function ready() {
         });
     }
 
-    // // Add event listeners to buttons for keyboard presses
-    // document.addEventListener('keydown', (event) => {
-    //     const keyMappings = {
-    //         'a': 'btn-key-c-low',
-    //         'w': 'btn-key-c-sharp',
-    //         's': 'btn-key-d',
-    //         'e': 'btn-key-d-sharp',
-    //         'd': 'btn-key-e',
-    //         'f': 'btn-key-f',
-    //         't': 'btn-key-f-sharp',
-    //         'g': 'btn-key-g',
-    //         'y': 'btn-key-g-sharp',
-    //         'h': 'btn-key-a',
-    //         'u': 'btn-key-a-sharp',
-    //         'j': 'btn-key-b',
-    //         'k': 'btn-key-c-high',
-    //     };
+    const keyMappings = {
+        'a': 'btn-key-c-low',
+        'w': 'btn-key-c-sharp',
+        's': 'btn-key-d',
+        'e': 'btn-key-d-sharp',
+        'd': 'btn-key-e',
+        'f': 'btn-key-f',
+        't': 'btn-key-f-sharp',
+        'g': 'btn-key-g',
+        'y': 'btn-key-g-sharp',
+        'h': 'btn-key-a',
+        'u': 'btn-key-a-sharp',
+        'j': 'btn-key-b',
+        'k': 'btn-key-c-high',
+    };
 
-    //     // Check if the key pressed was one of the keys we have mapped
-    //     if (keyMappings.hasOwnProperty(event.key)) { 
-    //         console.log(`In the keyMappings.hasOwnProperty statement`); //DB 
-    //         const targetId = keyMappings[event.key]; 
-    //         const fakeEvent = { target: document.getElementById(targetId) }; 
-    //         audioPlayer.playNote(fakeEvent); 
-    //     }
-    // }); 
+    document.addEventListener('keydown', (event) => {
+        if (keyMappings.hasOwnProperty(event.key) && !event.repeat) { 
+            console.log(`In the keyMappings.hasOwnProperty statement`); //DB 
+            const targetId = keyMappings[event.key]; 
+            // Use fakeEvent so that I can use the same behavior 
+            const fakeEvent = { target: document.getElementById(targetId) }; 
+            audioPlayer.playNote(fakeEvent); 
+        }
+    }); 
 } 
 
 
