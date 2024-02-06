@@ -75,14 +75,16 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             // console.log(`event.target = ${event.target}`); //DB 
 
             // Both of these things are true when we first play the note
-            this.mouseDown = true; 
-            this.mouseIn = true; 
+            let mouseDown = true; 
+            let mouseIn = true; 
 
             event.target.addEventListener("mouseup", () => {
-                this.mouseDown = false;
+                console.log(`In the first mouseup eventListener for ${event.target.id}`); //DB
+                mouseDown = false;
             }, { once: true });
             event.target.addEventListener("mouseout", () => {
-                this.mouseIn = false;
+                console.log(`In the first mouseout eventListener for ${event.target.id}`); //DB
+                mouseIn = false;
             }, { once: true }); 
 
             let noteObject = ConstructNoteObject(this.audioContext,
@@ -94,10 +96,10 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             // Default behavior of piano is to play note for x time, then do exponential decay after that 
             setTimeout(() => { 
                 // console.log("In the terminateAudio setTimeout"); //DB 
-                console.log(`In the terminateAudio setTimeout, this.mouseIn = ${this.mouseIn}`); //DB 
+                console.log(`In the terminateAudio setTimeout for ${event.target.id}, mouseIn = ${mouseIn}`); //DB 
 
-                if (this.mouseDown === false || this.mouseIn === false) { 
-                    console.log("In the mouseDown and mouseIn check block"); //DB
+                if (!mouseDown || !mouseIn) { 
+                    console.log("In the not mouseDown or not mouseIn check block"); //DB
                     noteObject.terminateAudio();
                 } else {
                     const handleMouseUpTerminate = () => {
