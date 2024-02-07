@@ -43,6 +43,19 @@ async function ready() {
         'u': 'btn-key-a-sharp',
         'j': 'btn-key-b',
         'k': 'btn-key-c-high',
+        'A': 'btn-key-c-low',
+        'W': 'btn-key-c-sharp',
+        'S': 'btn-key-d',
+        'E': 'btn-key-d-sharp',
+        'D': 'btn-key-e',
+        'F': 'btn-key-f',
+        'T': 'btn-key-f-sharp',
+        'G': 'btn-key-g',
+        'Y': 'btn-key-g-sharp',
+        'H': 'btn-key-a',
+        'U': 'btn-key-a-sharp',
+        'J': 'btn-key-b',
+        'K': 'btn-key-c-high'
     };
 
     document.addEventListener('keydown', (event) => {
