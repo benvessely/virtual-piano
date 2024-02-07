@@ -24,7 +24,7 @@ async function ready() {
     var pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
     for (var i = 0; i < pianoKeys.length; i++) {
         var button = pianoKeys[i];
-        button.addEventListener('mousedown', (event) => {  
+        button.addEventListener('mousedown', (event) => { 
             audioPlayer.playNote(event); 
         });
     }
@@ -70,6 +70,34 @@ async function ready() {
 } 
 
 
+async function CreateAudioBuffers(audioContext) { 
+    // Creates the AudioBuffers from the mp3 Files, one for every note in array noteNames
+    try { 
+        // console.log("At start of try block in CreateAudioBuffers"); //DB 
+
+        const returnArray = [];
+
+        for (const element of noteNames) { 
+            const soundFile = 'sounds/' + element + 'VirtualPiano.mp3'; 
+            // console.log(`soundFile = ${soundFile}`); //DB 
+            const response = await fetch(soundFile);
+            const newArrayBuffer = await response.arrayBuffer();
+            const newAudioBuffer = await audioContext.decodeAudioData(newArrayBuffer);
+            // console.log(`newAudioBuffer.length = ${newAudioBuffer.length / 44100}`); //DB 
+            returnArray.push(newAudioBuffer);
+        }
+        // console.log(`returnArray.length = ${returnArray.length}`); //DB 
+
+        return returnArray;
+    } 
+    catch(error) { 
+        console.error(error); 
+        return; 
+    } 
+}
+
+
+
 function GenerateAudioPlayer(audioBuffers, audioContext) {
     const audioPlayer = { 
         audioBuffers: audioBuffers, 
@@ -77,7 +105,9 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
         // Tracker variable to help with key release synchronization with audio termination
         mouseDown: false, 
         createPrimaryGain(gainValue=1) { 
+            this.dynamicsCompressor = this.audioContext.createDynamicsCompressor();
             this.primaryGainControl = this.audioContext.createGain(); 
+            this.dynamicsCompressor.connect(this.primaryGainControl);  
             this.primaryGainControl.gain.setValueAtTime(gainValue, 0); 
             this.primaryGainControl.connect(audioContext.destination); 
             // console.log("At end of createPrimaryGain body"); //DB 
@@ -100,7 +130,8 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             }, { once: true }); 
 
             let noteObject = ConstructNoteObject(this.audioContext,
-                this.audioBuffers, event.target.id, this.primaryGainControl); 
+                this.audioBuffers, event.target.id, this.primaryGainControl,
+                this.dynamicsCompressor); 
             noteObject.createNote();
             noteObject.createNoteGain();
             noteObject.playAudio(); 
@@ -152,12 +183,12 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
 }
 
 
-function ConstructNoteObject(audioContext, audioBuffers, targetId, primaryGainControl) { 
+function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompressor) { 
     const note = { 
         audioContext: audioContext, 
         audioBuffers: audioBuffers, 
         targetId: targetId, 
-        primaryGainControl: primaryGainControl,
+        dynamicsCompressor: dynamicsCompressor,
         createNote() { 
             // console.log(`At the start of note method createNote()`); //DB 
             let audioBuffersIndex; 
@@ -227,16 +258,16 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, primaryGainCo
             this.noteGain = this.audioContext.createGain(); 
             // console.log(`In createNoteGain, this.noteGain = ${this.noteGain}`); //DB 
             // Above confirms that we are indeed creating a GainNode object. //DB 
-            this.noteGain.gain.setValueAtTime(1, this.audioContext.currentTime); 
+            this.noteGain.gain.setValueAtTime(.5, this.audioContext.currentTime); 
             this.noteSource.connect(this.noteGain); 
-            this.noteGain.connect(this.primaryGainControl);
+            this.noteGain.connect(this.dynamicsCompressor); 
         },
         playAudio () { 
             this.noteSource.start(); 
         },
         terminateAudio() { 
             console.log(`At start of note method terminateAudio()`); //DB 
-            this.noteGain.gain.setValueAtTime(1, 0); 
+            this.noteGain.gain.setValueAtTime(.5, 0); 
             // releaseTime is time for noteGain to go to 0
             const releaseTime = 1.5; 
             this.noteGain.gain.exponentialRampToValueAtTime(
@@ -249,30 +280,3 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, primaryGainCo
 }
 
 
-async function CreateAudioBuffers(audioContext) { 
-    // Creates the AudioBuffers from the mp3 Files, one for every note in array noteNames
-    try { 
-        // console.log("At start of try block in CreateAudioBuffers"); //DB 
-
-        // Array to hold all of the AudioBuffers 
-        const returnArray = [];
-
-        // All audio files should be fetched, converted to AudioBuffers, and added to returnArray after this loop 
-        for (const element of noteNames) { 
-            const soundFile = 'sounds/' + element + 'VirtualPiano.mp3'; 
-            // console.log(`soundFile = ${soundFile}`); //DB 
-            const response = await fetch(soundFile);
-            const newArrayBuffer = await response.arrayBuffer();
-            const newAudioBuffer = await audioContext.decodeAudioData(newArrayBuffer);
-            // console.log(`newAudioBuffer.length = ${newAudioBuffer.length / 44100}`); //DB 
-            returnArray.push(newAudioBuffer);
-        }
-        // console.log(`returnArray.length = ${returnArray.length}`); //DB 
-
-        return returnArray;
-    } 
-    catch(error) { 
-        console.error(error); 
-        return; 
-    } 
-}
