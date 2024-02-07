@@ -96,8 +96,10 @@ body, html {
     border: 1.5px solid #222;
     border-radius: 0 0 6px 6px; 
     
+    /* Buggy keyboard labels, will save for later 
     padding-top: 35%; 
     color: #888; 
+    */ 
 }
 
 
@@ -121,8 +123,10 @@ body, html {
     position: absolute; 
     border-radius: 0 0 5px 5px; 
 
+    /* Buggy keyboard labels, will save for later 
     padding-top: 22%; 
     color: #777;
+    */ 
 }
 
 .btn-key-black:hover { 
