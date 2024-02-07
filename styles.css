@@ -95,7 +95,11 @@ body, html {
     margin-right: 0;
     border: 1.5px solid #222;
     border-radius: 0 0 6px 6px; 
+    
+    padding-top: 35%; 
+    color: #888; 
 }
+
 
 .btn-key-white:hover {
     background-color: #ddd;
@@ -116,6 +120,9 @@ body, html {
         * var(---black-key-scale));
     position: absolute; 
     border-radius: 0 0 5px 5px; 
+
+    padding-top: 22%; 
+    color: #777;
 }
 
 .btn-key-black:hover { 
