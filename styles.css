@@ -66,7 +66,7 @@ body, html {
     height: var(--container-height); 
     max-width: calc(var(--container-max-width));
     max-height: var(--container-max-height); 
-    background-color: #333; 
+    background-color: #3a3a3a; 
     border: 5px solid;
     margin: auto;
     /* The position and top properties will move the main container slightly
@@ -97,7 +97,7 @@ body, html {
     border-radius: 0 0 6px 6px; 
     
     padding-top: 35%; 
-    color: #888; 
+    color: #7b7b7b; 
     font-size: clamp(0px, 1.4em, 2.4vw); 
 }
 
@@ -126,7 +126,7 @@ body, html {
     padding-top: 22%; 
     padding-left: 0; 
     padding-right: 0; 
-    color: #777;
+    color: #888;
     font-size: clamp(0px, 1.25em, 2.1vw);
 }
 
@@ -158,6 +158,10 @@ body, html {
     top: var(--black-key-top-percent); 
     left: var(--a-sharp-left); 
 }
+
+.key-label-description {
+    text-align: center; 
+} 
 
 .footer { 
     /* Below aligns without display flex  */
