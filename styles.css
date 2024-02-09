@@ -96,10 +96,9 @@ body, html {
     border: 1.5px solid #222;
     border-radius: 0 0 6px 6px; 
     
-    /* Buggy keyboard labels, will save for later 
     padding-top: 35%; 
     color: #888; 
-    */ 
+    font-size: clamp(0px, 1.4em, 2.4vw); 
 }
 
 
@@ -123,10 +122,12 @@ body, html {
     position: absolute; 
     border-radius: 0 0 5px 5px; 
 
-    /* Buggy keyboard labels, will save for later 
+    text-align: center; 
     padding-top: 22%; 
+    padding-left: 0; 
+    padding-right: 0; 
     color: #777;
-    */ 
+    font-size: clamp(0px, 1.25em, 2.1vw);
 }
 
 .btn-key-black:hover { 
