@@ -1,43 +1,49 @@
 :root {
     --container-width: 90vw;
-    --container-height: 50vw;
+    --container-height: 55vw; 
     --container-width-unitless: 90; 
-    --container-height-unitless: 50;  
+    --container-height-unitless: 55; 
     --container-max-width: 850px; 
     --container-max-height: calc(var(--container-max-width) * 
         (var(--container-height-unitless) / 
         var(--container-width-unitless)));
 
-    --white-key-width: 10.8%;
-    --white-key-height: 80%; 
-    --white-key-width-unitless: 10.8; 
-    --white-key-height-unitless: 80; 
-    /* --white-key-scale: 1.2;  */
+    --keys-container-width: 95%;
+    --keys-container-height: 75%;
+    --keys-container-width-unitless: 95; 
+    --keys-container-height-unitless: 75; 
 
-    --black-key-width: 6%; 
-    --black-key-height: 55%; 
-    --black-key-width-unitless: 6; 
-    --black-key-height-unitless: 55; 
+    --white-key-width: 12.5%;
+    --white-key-height: 100%; 
+    --white-key-width-unitless: 12.5; 
+    --white-key-height-unitless: 75; 
 
-    /* Below code puts black keys in the right spot */ 
-    --padding-size-top: calc((100% - var(--white-key-height)) / 2); 
-    --black-key-top-percent: var(--padding-size-top);
+    --black-key-width: 6.5%; 
+    --black-key-height: 70%; 
+    --black-key-width-unitless: 6.5; 
+    --black-key-height-unitless: 70; 
+
+    /* --black-key-top-percent: calc((100% - var(--white-key-height)) / 2); */
+    --black-key-top-percent: 0%; 
     --padding-size-side: calc((100% - 8 * var(--white-key-width)) * .5); 
+    /* --c-sharp-left:
+        calc(100% - 7 * var(--white-key-width) + 
+        .5 * (100 - var(--keys-container-width-unitless))); */
     --c-sharp-left:
-        calc(100% - 7 * var(--white-key-width) - var(--padding-size-side)
-        - .5 * var(--black-key-width));
+        calc(1 * var(--white-key-width) - .5 * var(--black-key-width));
     --d-sharp-left: 
-        calc(100% - 6 * var(--white-key-width) - var(--padding-size-side)
-        - .5 * var(--black-key-width));
+        calc(2 * var(--white-key-width) - .5 * var(--black-key-width)); 
     --f-sharp-left: 
-        calc(100% - 4 * var(--white-key-width) - var(--padding-size-side)
-        - .5 * var(--black-key-width));
+        calc(4 * var(--white-key-width) - .5 * var(--black-key-width)); 
     --g-sharp-left: 
-        calc(100% - 3 * var(--white-key-width) - var(--padding-size-side)
-        - .5 * var(--black-key-width));
-    --a-sharp-left: 
+        calc(5 * var(--white-key-width) - .5 * var(--black-key-width));
+    --a-sharp-left:
+        calc(6 * var(--white-key-width) - .5 * var(--black-key-width));
+
+    /* Old code example
         calc(100% - 2 * var(--white-key-width) - var(--padding-size-side)
         - .5 * var(--black-key-width));
+    */ 
 }
 
 * {
@@ -58,6 +64,7 @@ body, html {
     text-align: center; 
     margin: 0; 
     padding: 20px;
+    font-size: 3em;
     border-bottom: 3px solid;
 }
 
@@ -68,16 +75,60 @@ body, html {
     max-height: var(--container-max-height); 
     background-color: #3a3a3a; 
     border: 5px solid;
+    border-radius: 5px; 
     margin: auto;
     /* The position and top properties will move the main container slightly
     above center, though seems like a bit of a makeshift solution. */
     position: relative;  
     top: -10px;
-    /* Styling the location of the actual content */ 
+
     display: flex; 
+    flex-direction: column;
     justify-content: center; 
     align-items: center; 
-    border-radius: 5px; 
+}
+
+.pedal-button-container { 
+    display: flex; 
+    justify-content: center; 
+    width: 55%;
+    height: 20%;
+}
+
+.keys-container { 
+    /* Use relative positioning so that black key alignment is more adaptable */ 
+    position: relative; 
+    display: flex; 
+    justify-content: center; 
+    width: 95%; 
+    height: 75%; 
+}
+
+.pedal-button { 
+    margin-top: 2.5%;
+    height: 70%; 
+    width: 50%;
+    background-color: #b8b8b8;
+    border: 3px solid #888;
+    font-size: clamp(0em, 2.1vw, 1.18em);
+    font-family:'Courier New', Courier, monospace; 
+    display: flex; 
+    justify-content: space-evenly;
+    align-items: center;
+} 
+
+.pedal-button:hover {
+    background-color: #adadad;
+}
+
+
+.glowing-light-span { 
+    width: 9%; 
+    height: 31.5%; 
+    background-color: red; 
+    border: 2px solid red; 
+    border-radius: 50%; 
+    box-shadow: 0 0 15px 5px #ea4c89;
 }
 
 .btn-key-white {
@@ -98,9 +149,8 @@ body, html {
     
     padding-top: 35%; 
     color: #686868; 
-    font-size: clamp(0px, 1.4em, 2.4vw); 
+    font-size: clamp(0px, 1.4em, 2.4vw);
 }
-
 
 .btn-key-white:hover {
     background-color: #ddd;
@@ -119,6 +169,7 @@ body, html {
     max-height: calc(var(--container-max-height) *
         (var(--black-key-height-unitless) / var(--container-height-unitless))
         * var(---black-key-scale));
+    /* Need to place black keys in specific spots overlaying white keys */
     position: absolute; 
     border-radius: 0 0 5px 5px; 
 
