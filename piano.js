@@ -1,9 +1,3 @@
-// This array used to create AudioBuffers, as well as for identifying the specific button pressed. 
-const noteNames = [
-    "c3", "cSharp3", "d3", "dSharp3", "e3", "f3", "fSharp3", "g3", "gSharp3", "a3", "aSharp3", "b3", "c4"
-];
-
-
 // Code below to check to make sure DOM content loaded before adding event listeners.
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -15,10 +9,15 @@ if (document.readyState === 'loading') {
 
 
 async function ready() { 
+    // This array used to create AudioBuffers, as well as for identifying the specific button pressed. 
+    const noteNames = [
+        "c3", "cSharp3", "d3", "dSharp3", "e3", "f3", "fSharp3", "g3", "gSharp3", "a3", "aSharp3", "b3", "c4"
+    ];
+
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const audioBuffers = await CreateAudioBuffers(audioContext);
-    const audioPlayer = GenerateAudioPlayer(audioBuffers, audioContext); 
-    audioPlayer.createPrimaryGain();  
+    const audioBuffers = await CreateAudioBuffers(audioContext, noteNames);
+    const audioPlayer = GenerateAudioPlayer(audioBuffers, audioContext, noteNames); 
+    audioPlayer.setupAudio(); 
 
     // Adds event listeners to buttons for mouse down event
     var pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
@@ -60,7 +59,7 @@ async function ready() {
 
     document.addEventListener('keydown', (keydownEvent) => {
         if (keyMappings.hasOwnProperty(keydownEvent.key) && !keydownEvent.repeat) {
-            console.log(`In keydown event keyMappings check`); 
+            // console.log(`In keydown event keyMappings check`); 
             // const targetId = keyMappings[keydownEvent.key]; 
             // // Use fakeEvent so that I can use the same behavior 
             // const fakeEvent = { target: document.getElementById(targetId) }; 
@@ -70,7 +69,7 @@ async function ready() {
 } 
 
 
-async function CreateAudioBuffers(audioContext) {
+async function CreateAudioBuffers(audioContext, noteNames) {
     // Creates the AudioBuffers from the mp3 Files, one for every note in array noteNames
     try { 
         // console.log("At start of try block in CreateAudioBuffers"); //DB 
@@ -97,40 +96,59 @@ async function CreateAudioBuffers(audioContext) {
 }
 
 
-function GenerateAudioPlayer(audioBuffers, audioContext) {
+function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
     const audioPlayer = { 
         audioBuffers: audioBuffers, 
         audioContext: audioContext, 
+        noteNames: noteNames, 
         // Tracker variable to help with key release synchronization with audio termination
         mouseDown: false, 
+        setupAudio() { 
+            this.handlePrimaryGain(); 
+            this.handleDynamicsCompressor(); 
+        },
+        handlePrimaryGain() { 
+            this.createPrimaryGain(); 
+            this.connectPrimaryGain(); 
+        },
+        handleDynamicsCompressor() { 
+            this.createDynamicsCompressor(); 
+            this.connectDynamicsCompressor(); 
+        },
         createPrimaryGain(gainValue=1) { 
-            this.dynamicsCompressor = this.audioContext.createDynamicsCompressor();
             this.primaryGainControl = this.audioContext.createGain(); 
-            this.dynamicsCompressor.connect(this.primaryGainControl);  
             this.primaryGainControl.gain.setValueAtTime(gainValue, 0); 
-            this.primaryGainControl.connect(audioContext.destination); 
             // console.log("At end of createPrimaryGain body"); //DB 
         },
+        connectPrimaryGain() { 
+            this.primaryGainControl.connect(audioContext.destination); 
+        },
+        createDynamicsCompressor() {
+            this.dynamicsCompressor = this.audioContext.createDynamicsCompressor();
+        },
+        connectDynamicsCompressor() { 
+            this.dynamicsCompressor.connect(this.primaryGainControl); 
+        },
         playNoteMouse(event) { 
-            console.log(`At start of playNoteMouse`); //DB 
-            // console.log(`event.target = ${event.target}`); //DB 
+            // console.log(`At start of playNoteMouse`); //DB 
+            // console.log(`event.target = ${e ent.target}`); //DB 
 
             // Both of these things are true when we first play the note
             let mouseDown = true; 
             let mouseIn = true; 
 
             event.target.addEventListener("mouseup", () => {
-                console.log(`In the first mouseup eventListener for ${event.target.id}`); //DB
+                // console.log(`In the first mouseup eventListener for ${event.target.id}`); //DB
                 mouseDown = false;
             }, { once: true });
             event.target.addEventListener("mouseout", () => {
-                console.log(`In the first mouseout eventListener for ${event.target.id}`); //DB
+                // console.log(`In the first mouseout eventListener for ${event.target.id}`); //DB
                 mouseIn = false;
             }, { once: true }); 
 
             let noteObject = ConstructNoteObject(this.audioContext,
                 this.audioBuffers, event.target.id,
-                this.dynamicsCompressor); 
+                this.dynamicsCompressor, this.noteNames); 
             noteObject.createNote();
             noteObject.createNoteGain();
             noteObject.playAudio(); 
@@ -141,11 +159,11 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
                 console.log(`In the terminateAudio setTimeout for ${event.target.id}, mouseIn = ${mouseIn}`); //DB 
 
                 if (!mouseDown || !mouseIn) { 
-                    console.log("In the not mouseDown or not mouseIn check block"); //DB
+                    // console.log("In the not mouseDown or not mouseIn check block"); //DB
                     noteObject.terminateAudio();
                 } else {
                     const handleMouseUpTerminate = () => {
-                        console.log(`In handleMouseUpTerminate`); //DB 
+                        // console.log(`In handleMouseUpTerminate`); //DB 
                         noteObject.terminateAudio();
                         event.target.removeEventListener(
                             "mouseout", handleMouseOutTerminate);
@@ -153,7 +171,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
                     }
 
                     const handleMouseOutTerminate = () =>  {
-                        console.log(`In handleMouseOutTerminate`); //DB 
+                        // console.log(`In handleMouseOutTerminate`); //DB 
                         noteObject.terminateAudio();
                         event.target.removeEventListener(
                             "mouseup", handleMouseUpTerminate); 
@@ -178,19 +196,16 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             // console.log("We are at end of the playNoteMouse body"); //DB
         }, 
         playNoteKeydown(keydownEvent, keyMappings) {
-            console.log(`At start of playNoteKeydown`); //DB 
+            // console.log(`At start of playNoteKeydown`); //DB 
             // console.log(`event.target = ${event.target}`); //DB 
 
             let keyDown = true; 
 
-            // Define a variable to record which key was initially downed to trigger this method
             const keyDowned = keydownEvent.key;
             const keyDownedId =  keyMappings[keydownEvent.key]; 
-            console.log(`keyDowned = ${keyDowned}`);  //DB 
-            console.log(`keyDownedId = ${keyDownedId}`);  //DB 
-
+        
             keydownEvent.target.addEventListener("keyup", (keyupEvent) => {
-                console.log(`In the first keyup eventListener for ${keyupEvent.key}`); //DB
+                // console.log(`In the first keyup eventListener for ${keyupEvent.key}`); //DB
                 // Change flag only if the keyup event was performed on the same key as performed the keydown event
                 if (keyDowned == keyupEvent.key) {
                     keyDown = false;
@@ -198,27 +213,23 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
             });
 
             let noteObject = ConstructNoteObject(this.audioContext,
-                this.audioBuffers, keyDownedId, this.dynamicsCompressor); 
+                this.audioBuffers, keyDownedId, this.dynamicsCompressor, this.noteNames); 
             noteObject.createNote();
             noteObject.createNoteGain();
             noteObject.playAudio(); 
 
-            // Default behavior of piano is to play note for x time, then do exponential decay after that 
             setTimeout(() => { 
                 // console.log(`In the terminateAudio setTimeout from keydown event for ${}`); //DB 
                 
                 if (!keyDown) { 
-                    console.log("In the !keyDown check block"); //DB
+                    // console.log("In the !keyDown check block"); //DB
                     noteObject.terminateAudio();
                 } else {
-                    console.log(`In the else statement of !keyDown`); //DB
-
-                    // TODO Deal with this behavior for termination on keyup 
+                    // console.log(`In the else statement of !keyDown`); //DB
 
                     const handleKeyupTerminate = (keyupEvent) => {
-                        console.log(`In handleKeyupTerminate`); 
-                        // console.log(`In handleKeyupTerminate, keyDowned = ${keyDowned}`); //DB 
-                        // console.log(`In handleKeyupTerminate, keyupEvent.key = ${keyupEvent.key}`); //DB 
+                        // console.log(`In handleKeyupTerminate`); //DB 
+
                         if (keyDowned == keyupEvent.key) { 
                             noteObject.terminateAudio();
                             keydownEvent.target.removeEventListener(
@@ -242,74 +253,79 @@ function GenerateAudioPlayer(audioBuffers, audioContext) {
 }
 
 
-function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompressor) { 
+function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompressor, noteNames) { 
     const note = { 
         audioContext: audioContext, 
         audioBuffers: audioBuffers, 
         targetId: targetId, 
         dynamicsCompressor: dynamicsCompressor,
+        noteNames: noteNames, 
         createNote() { 
             // console.log(`At the start of note method createNote()`); //DB 
-            let audioBuffersIndex; 
-            switch (targetId) { 
-                case "btn-key-c-low": 
-                    audioBuffersIndex = noteNames.indexOf("c3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
-                    break; 
-                case "btn-key-c-sharp": 
-                    audioBuffersIndex = noteNames.indexOf("cSharp3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
-                    break; 
-                case "btn-key-d": 
-                    audioBuffersIndex = noteNames.indexOf("d3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
-                    break; 
-                case "btn-key-d-sharp": 
-                    audioBuffersIndex = noteNames.indexOf("dSharp3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
-                    break; 
-                case "btn-key-e": 
-                    audioBuffersIndex = noteNames.indexOf("e3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
-                    break; 
-                case "btn-key-f": 
-                    audioBuffersIndex = noteNames.indexOf("f3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
-                    break; 
-                case "btn-key-f-sharp": 
-                    audioBuffersIndex = noteNames.indexOf("fSharp3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
-                    break; 
-                case "btn-key-g": 
-                    audioBuffersIndex = noteNames.indexOf("g3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
-                    break; 
-                case "btn-key-g-sharp": 
-                    audioBuffersIndex = noteNames.indexOf("gSharp3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
-                    break;  
-                case "btn-key-a": 
-                    audioBuffersIndex = noteNames.indexOf("a3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
-                    break; 
-                case "btn-key-a-sharp": 
-                    audioBuffersIndex = noteNames.indexOf("aSharp3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
-                    break; 
-                case "btn-key-b": 
-                    audioBuffersIndex = noteNames.indexOf("b3"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
-                    break; 
-                case "btn-key-c-high": 
-                    audioBuffersIndex = noteNames.indexOf("c4"); 
-                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
-                    break;   
-            }
+            let audioBuffersIndex = this.noteIndexFromId(); 
             // console.log(`At end of note method createNote(), we have audioBuffersIndex = ${audioBuffersIndex}`); //DB 
             const noteSource = this.audioContext.createBufferSource();
             noteSource.buffer = this.audioBuffers[audioBuffersIndex]; 
             // console.log(`Do we get to this point in createNote?`); //DB 
             this.noteSource = noteSource; 
+        },
+        noteIndexFromId() { 
+            let audioBuffersIndex;
+            switch (this.targetId) { 
+                case "btn-key-c-low": 
+                    audioBuffersIndex = this.noteNames.indexOf("c3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-c-sharp": 
+                    audioBuffersIndex = this.noteNames.indexOf("cSharp3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-d": 
+                    audioBuffersIndex = this.noteNames.indexOf("d3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-d-sharp": 
+                    audioBuffersIndex = this.noteNames.indexOf("dSharp3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-e": 
+                    audioBuffersIndex = this.noteNames.indexOf("e3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-f": 
+                    audioBuffersIndex = this.noteNames.indexOf("f3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-f-sharp": 
+                    audioBuffersIndex = this.noteNames.indexOf("fSharp3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB 
+                    break; 
+                case "btn-key-g": 
+                    audioBuffersIndex = this.noteNames.indexOf("g3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-g-sharp": 
+                    audioBuffersIndex = this.noteNames.indexOf("gSharp3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break;  
+                case "btn-key-a": 
+                    audioBuffersIndex = this.noteNames.indexOf("a3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-a-sharp": 
+                    audioBuffersIndex = this.noteNames.indexOf("aSharp3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-b": 
+                    audioBuffersIndex = this.noteNames.indexOf("b3"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break; 
+                case "btn-key-c-high": 
+                    audioBuffersIndex = this.noteNames.indexOf("c4"); 
+                    // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); //DB
+                    break;   
+            }
+            return audioBuffersIndex;
         },
         createNoteGain() { 
             // console.log(`At start of note method createNoteGain()`); //DB 
