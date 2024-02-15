@@ -5,7 +5,7 @@ if (document.readyState === 'loading') {
     });
 } else {
     ready();
-}
+};
 
 
 async function ready() { 
@@ -20,11 +20,12 @@ async function ready() {
     audioPlayer.setupAudio(); 
 
     // Adds event listeners to buttons for mouse down event
-    var pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
-    for (var i = 0; i < pianoKeys.length; i++) {
-        var button = pianoKeys[i];
-        button.addEventListener('mousedown', (event) => { 
-            audioPlayer.playNoteMouse(event); 
+    const pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
+    for (let i = 0; i < pianoKeys.length; i++) {
+        const button = pianoKeys[i];
+        button.addEventListener('mousedown', (mousedownEvent) => { 
+            const targetId = mousedownEvent.target.id; 
+            audioPlayer.playNote(mousedownEvent, targetId); 
         });
     }
 
@@ -59,11 +60,9 @@ async function ready() {
 
     document.addEventListener('keydown', (keydownEvent) => {
         if (keyMappings.hasOwnProperty(keydownEvent.key) && !keydownEvent.repeat) {
-            // console.log(`In keydown event keyMappings check`); 
-            // const targetId = keyMappings[keydownEvent.key]; 
-            // // Use fakeEvent so that I can use the same behavior 
-            // const fakeEvent = { target: document.getElementById(targetId) }; 
-            audioPlayer.playNoteKeydown(keydownEvent, keyMappings); 
+            // console.log(`In keydown event keyMappings check`);
+            const targetId = keyMappings[keydownEvent.key]; 
+            audioPlayer.playNote(keydownEvent, targetId, keyMappings); 
         }
     }); 
 } 
@@ -129,14 +128,34 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
         connectDynamicsCompressor() { 
             this.dynamicsCompressor.connect(this.primaryGainControl); 
         },
-        playNoteMouse(event) { 
+        playNote(event, targetId, keyMappings=null) { 
             // console.log(`At start of playNoteMouse`); //DB 
             // console.log(`event.target = ${e ent.target}`); //DB 
+
+            let noteObject = ConstructNoteObject(this.audioContext,
+                this.audioBuffers, targetId,
+                this.dynamicsCompressor, this.noteNames); 
+            noteObject.createNote();
+            noteObject.createNoteGain();
+            noteObject.playAudio(); 
+
+            if (event.type === 'mousedown') {
+                this.handleMouseUp(event, noteObject); 
+            }
+            else if (event.type === 'keydown') { 
+                this.handleKeyUp(event, noteObject, keyMappings); 
+            }
+            
+            // console.log("We are at end of the playNoteMouse body"); //DB
+        }, 
+        handleMouseUp(event, noteObject) {
+            // Default behavior of piano is to play note for x time, then do exponential decay after that 
 
             // Both of these things are true when we first play the note
             let mouseDown = true; 
             let mouseIn = true; 
 
+            // To be used in handleMouseUp()
             event.target.addEventListener("mouseup", () => {
                 // console.log(`In the first mouseup eventListener for ${event.target.id}`); //DB
                 mouseDown = false;
@@ -146,17 +165,9 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                 mouseIn = false;
             }, { once: true }); 
 
-            let noteObject = ConstructNoteObject(this.audioContext,
-                this.audioBuffers, event.target.id,
-                this.dynamicsCompressor, this.noteNames); 
-            noteObject.createNote();
-            noteObject.createNoteGain();
-            noteObject.playAudio(); 
-
-            // Default behavior of piano is to play note for x time, then do exponential decay after that 
             setTimeout(() => { 
                 // console.log("In the terminateAudio setTimeout"); //DB 
-                console.log(`In the terminateAudio setTimeout for ${event.target.id}, mouseIn = ${mouseIn}`); //DB 
+                // console.log(`In the terminateAudio setTimeout for ${event.target.id}, mouseDown = ${mouseDown} and mouseIn = ${mouseIn}`); //DB 
 
                 if (!mouseDown || !mouseIn) { 
                     // console.log("In the not mouseDown or not mouseIn check block"); //DB
@@ -176,7 +187,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                         event.target.removeEventListener(
                             "mouseup", handleMouseUpTerminate); 
                         return; 
-                    }
+                    } 
 
                     // New event listeners to terminate audio at right time if past one second. Previous event listeners still exist. 
                     event.target.addEventListener(
@@ -192,10 +203,8 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                     );
                 }
             }, 1000);
-            
-            // console.log("We are at end of the playNoteMouse body"); //DB
-        }, 
-        playNoteKeydown(keydownEvent, keyMappings) {
+        },
+        handleKeyUp(keydownEvent, noteObject, keyMappings) {
             // console.log(`At start of playNoteKeydown`); //DB 
             // console.log(`event.target = ${event.target}`); //DB 
 
@@ -207,16 +216,10 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
             keydownEvent.target.addEventListener("keyup", (keyupEvent) => {
                 // console.log(`In the first keyup eventListener for ${keyupEvent.key}`); //DB
                 // Change flag only if the keyup event was performed on the same key as performed the keydown event
-                if (keyDowned == keyupEvent.key) {
+                if (keyDowned === keyupEvent.key) {
                     keyDown = false;
                 }
             });
-
-            let noteObject = ConstructNoteObject(this.audioContext,
-                this.audioBuffers, keyDownedId, this.dynamicsCompressor, this.noteNames); 
-            noteObject.createNote();
-            noteObject.createNoteGain();
-            noteObject.playAudio(); 
 
             setTimeout(() => { 
                 // console.log(`In the terminateAudio setTimeout from keydown event for ${}`); //DB 
@@ -230,7 +233,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                     const handleKeyupTerminate = (keyupEvent) => {
                         // console.log(`In handleKeyupTerminate`); //DB 
 
-                        if (keyDowned == keyupEvent.key) { 
+                        if (keyDowned === keyupEvent.key) { 
                             noteObject.terminateAudio();
                             keydownEvent.target.removeEventListener(
                                 "keyup", 
