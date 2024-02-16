@@ -19,7 +19,6 @@ async function ready() {
     const audioPlayer = GenerateAudioPlayer(audioBuffers, audioContext, noteNames); 
     audioPlayer.setupAudio(); 
 
-    // Adds event listeners to buttons for mouse down event
     const pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
     for (let i = 0; i < pianoKeys.length; i++) {
         const button = pianoKeys[i];
@@ -65,6 +64,29 @@ async function ready() {
             audioPlayer.playNote(keydownEvent, targetId, keyMappings); 
         }
     }); 
+
+    // Handle changing the sustain pedal from on to off
+    const pedalButton = document.getElementById("pedal-button"); 
+    const glowingLight = document.getElementById("glowing-light-span"); 
+    let offStyle = true; 
+
+    pedalButton.addEventListener("click", (event) => {
+        if (offStyle) { 
+            pedalButton.classList.add("pedal-button-on");
+            pedalButton.classList.remove("pedal-button:hover");
+
+            glowingLight.classList.remove("glowing-light-span-off"); 
+            glowingLight.classList.add("glowing-light-span-on"); 
+        } else {
+            pedalButton.classList.remove("pedal-button-on"); 
+
+            glowingLight.classList.remove("glowing-light-span-on"); 
+            glowingLight.classList.add("glowing-light-span-off");
+        }
+        offStyle = !offStyle; 
+    }); 
+
+
 } 
 
 

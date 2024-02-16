@@ -115,20 +115,30 @@ body, html {
     display: flex; 
     justify-content: space-evenly;
     align-items: center;
-} 
-
-.pedal-button:hover {
-    background-color: #adadad;
 }
 
+.pedal-button-on { 
+    background-color: #a0a0a0;
+    border: 3px solid #888;
+    font-weight: bold;
+}
 
-.glowing-light-span { 
+.glowing-light-span-on { 
     width: 9%; 
     height: 31.5%; 
     background-color: red; 
     border: 2px solid red; 
     border-radius: 50%; 
     box-shadow: 0 0 15px 5px #ea4c89;
+}
+
+.glowing-light-span-off { 
+    width: 9%; 
+    height: 31.5%; 
+    background-color: rgba(255, 0, 0, .5);
+    border: 5px rgba(255, 0, 0, .5);
+    border-radius: 50%; 
+    /* box-shadow: 0 0 15px 5px #ea4c89; */
 }
 
 .btn-key-white {
