@@ -269,7 +269,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                         handleKeyupTerminate
                     );
                 }
-            }, 1000);
+            }, 500);
             
             // console.log("We are at end of the playNoteMouse body"); //DB
         }
@@ -369,7 +369,7 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompr
             console.log(`At start of note method terminateAudio()`); //DB 
             this.noteGain.gain.setValueAtTime(.5, 0); 
             // releaseTime is time for noteGain to go to 0
-            const releaseTime = 1.5; 
+            const releaseTime = 2; 
             this.noteGain.gain.exponentialRampToValueAtTime(
                 .001, 
                 this.audioContext.currentTime + releaseTime
