@@ -73,13 +73,10 @@ async function ready() {
     pedalButton.addEventListener("click", (event) => {
         if (offStyle) { 
             pedalButton.classList.add("pedal-button-on");
-            pedalButton.classList.remove("pedal-button:hover");
-
             glowingLight.classList.remove("glowing-light-span-off"); 
             glowingLight.classList.add("glowing-light-span-on"); 
         } else {
             pedalButton.classList.remove("pedal-button-on"); 
-
             glowingLight.classList.remove("glowing-light-span-on"); 
             glowingLight.classList.add("glowing-light-span-off");
         }
@@ -124,6 +121,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
         noteNames: noteNames, 
         // Tracker variable to help with key release synchronization with audio termination
         mouseDown: false, 
+        pedalDown: false,
         setupAudio() { 
             this.handlePrimaryGain(); 
             this.handleDynamicsCompressor(); 
