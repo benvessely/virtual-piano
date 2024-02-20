@@ -136,11 +136,13 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
         },
         pedalSwitch() { 
             this.pedalDown = !this.pedalDown; 
-            // console.log(`In pedalSwitch(), this.pedalDown is changed to ${this.pedalDown}`); //DB 
+            console.log(`In pedalSwitch()`); //DB 
             if (!this.pedalDown) { 
                 for (const liveNote of this.liveNoteArray) {
                     // If the audio didn't terminate due to pedal condition
-                    liveNote.terminateAudio(this.pedalDown, this.liveNoteArray);
+                    if (!liveNote.terminated) {
+                        liveNote.terminateAudio(this.pedalDown, this.liveNoteArray);
+                    } 
                 }
             }
         }, 
@@ -183,6 +185,13 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
             else if (event.type === 'keydown') { 
                 this.handleKeyUp(event, noteObject, keyMappings); 
             }
+
+            // Regardless of pedal or holding notes, end audio after x seconds 
+            setTimeout(() => { 
+                console.log(`In timed self-termination in playNote()`); 
+                if (!noteObject.terminated)
+                    noteObject.terminateAudio(this.pedalDown, this.liveNoteArray, bypassPedal=true); 
+            }, 8000);
             
             // console.log("We are at end of the playNoteMouse body"); //DB
         }, 
@@ -217,7 +226,6 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                     const handleMouseTerminate = () =>  {
                         console.log(`In handleMouseTerminate`); //DB
                         if (!noteObject.terminated) { 
-                            console.log(`In !noteObject.terminated block`); //DB
                             noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
                         }
                     }; 
@@ -233,11 +241,6 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                         handleMouseTerminate,
                         { once: true }
                     );
-
-                    // Even if mouse not up/out, terminate audio at x seconds 
-                    setTimeout(() => { 
-                        handleMouseTerminate(); 
-                    }, 8000);
                 }
             }, 500);
         },
@@ -282,19 +285,6 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                         "keyup", 
                         handleKeyupTerminate
                     );
-
-                    // Even if key not up, terminate audio after x seconds 
-                    setTimeout(() => { 
-                        if (!noteObject.terminated) { 
-                            noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
-                        };
-                        // Remove event listener so that we don't keep checking this condition after audio is terminated
-                        keydownEvent.target.removeEventListener(
-                            "keyup", 
-                            handleKeyupTerminate
-                        ); 
-                    }, 8000);
-
                 }
             }, 500);
             
@@ -392,11 +382,12 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompr
         playAudio () { 
             this.noteSource.start(); 
         },
-        terminateAudio(pedalDown, liveNoteArray) { 
+        terminateAudio(pedalDown, liveNoteArray, bypassPedal=false) { 
             console.log(`In terminateAudio()`); //DB 
 
-            if (!pedalDown) {
-                // console.log(`In terminateAudio() !pedalDown block`); // DB 
+            // If the note has played for a long enough time, we terminate it even if the pedal is down
+            if (!pedalDown || bypassPedal) {
+                console.log(`In terminateAudio() !pedalDown block`); // DB 
                 this.noteGain.gain.setValueAtTime(.5, 0); 
                 // releaseTime is time for noteGain to go to 0
                 const releaseTime = 2; 
