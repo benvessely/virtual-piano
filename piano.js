@@ -209,35 +209,18 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
 
                 if (!mouseDown || !mouseIn) { 
                     // console.log(`In the !mouseDown || !mouseIn block); //DB
-                    // If audio didn't terminate due to pedal, need to be able to reference it later 
+                    // If audio didn't terminate due to pedal, need to be able to reference it later, so pass in this.liveNoteArray
                     noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
                     
                 } else {
-
-                    const handleMouseTerminate = (newEventType) =>  {
-                        // EventListeners removed in this function to avoid calling terminateAudio more than once
+                    // 
+                    const handleMouseTerminate = () =>  {
                         console.log(`In handleMouseTerminate`); //DB
                         if (!noteObject.terminated) { 
                             console.log(`In !noteObject.terminated block`); //DB
                             noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
-                        }}; 
-                    //         if (newEventType === "mouseup") {
-                    //             originalEvent.target.removeEventListener(
-                    //                 "mouseout", handleMouseTerminate); 
-                    //         } 
-                    //         else if (newEventType === "mouseout") { 
-                    //             originalEvent.target.removeEventListener(
-                    //                 "mouseup", handleMouseTerminate); 
-                    //         } 
-                    //         // If excess time triggered the termination
-                    //         else { 
-                    //             originalEvent.target.removeEventListener(
-                    //                 "mouseout", handleMouseTerminate); 
-                    //             originalEvent.target.removeEventListener(
-                    //                 "mouseup", handleMouseTerminate); 
-                    //         }
-                    //     } 
-                    // };
+                        }
+                    }; 
 
                     originalEvent.target.addEventListener(
                         "mouseup",
@@ -264,9 +247,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
             // console.log(`event.target = ${event.target}`); //DB 
 
             let keyDown = true; 
-
             const keyDowned = keydownEvent.key;
-            const keyDownedId =  keyMappings[keydownEvent.key]; 
         
             keydownEvent.target.addEventListener("keyup", (keyupEvent) => {
                 // console.log(`In the first keyup eventListener for ${keyupEvent.key}`); //DB
@@ -284,16 +265,18 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                     noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
                 } else {
                     // console.log(`In the else statement of !keyDown`); //DB
-
                     const handleKeyupTerminate = (keyupEvent) => {
-                        // console.log(`In handleKeyupTerminate`); //DB 
-
+                        // console.log(`In handleKeyupTerminate`); //DB
+                        // Need to check the keyup event target key every time since the target keyupEvent is the document
                         if (keyDowned === keyupEvent.key) { 
-                            noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
-                            keydownEvent.target.removeEventListener(
-                                "keyup", 
-                                handleKeyupTerminate
-                            ); 
+                            if (!noteObject.terminated) { 
+                                noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
+                                // Need to remove event listener in the key case because checking key every time means can't use { once: true }
+                                keydownEvent.target.removeEventListener(
+                                    "keyup", 
+                                    handleKeyupTerminate
+                                ); 
+                            } 
                         }
                     }
 
