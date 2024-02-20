@@ -127,7 +127,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
             this.handleDynamicsCompressor(); 
         },
         setupPedalListener() { 
-            console.log(`In setupPedalListener()`); //DB
+            // console.log(`In setupPedalListener()`); //DB
             const pedalButton = document.getElementById("pedal-button"); 
             // Use arrow function to make sure "this" is audioPlayer, not pedalButton
             pedalButton.addEventListener("click", () => {
@@ -136,7 +136,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
         },
         pedalSwitch() { 
             this.pedalDown = !this.pedalDown; 
-            console.log(`In pedalSwitch(), this.pedalDown is changed to ${this.pedalDown}`); //DB 
+            // console.log(`In pedalSwitch(), this.pedalDown is changed to ${this.pedalDown}`); //DB 
             if (!this.pedalDown) { 
                 for (const liveNote of this.liveNoteArray) {
                     // If the audio didn't terminate due to pedal condition
@@ -186,7 +186,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
             
             // console.log("We are at end of the playNoteMouse body"); //DB
         }, 
-        handleMouseUpOut(event, noteObject) {
+        handleMouseUpOut(originalEvent, noteObject) {
             // Default behavior of piano is to play note for x time, then do exponential decay after that 
 
             // Both of these things are true when we first play the note
@@ -194,57 +194,70 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
             let mouseIn = true; 
 
             // To be used in handleMouseUpOut()
-            event.target.addEventListener("mouseup", () => {
-                // console.log(`In the first mouseup eventListener for ${event.target.id}`); //DB
+            originalEvent.target.addEventListener("mouseup", () => {
+                // console.log(`In the first mouseup eventListener for ${originalEvent.target.id}`); //DB
                 mouseDown = false;
             }, { once: true });
-            event.target.addEventListener("mouseout", () => {
-                // console.log(`In the first mouseout eventListener for ${event.target.id}`); //DB
+            originalEvent.target.addEventListener("mouseout", () => {
+                // console.log(`In the first mouseout eventListener for ${originalEvent.target.id}`); //DB
                 mouseIn = false;
             }, { once: true }); 
 
-            console.log(`Before running setTimeout in handleMouseUpOut, this.pedalDown = ${this.pedalDown}`); 
-
             setTimeout(() => { 
                 // console.log("In the terminateAudio setTimeout"); //DB 
-                // console.log(`In the terminateAudio setTimeout for ${event.target.id}, mouseDown = ${mouseDown} and mouseIn = ${mouseIn}`); //DB 
+                // console.log(`In the terminateAudio setTimeout for ${originalEvent.target.id}, mouseDown = ${mouseDown} and mouseIn = ${mouseIn}`); //DB 
 
                 if (!mouseDown || !mouseIn) { 
-                    console.log(`In the !mouseDown || !mouseIn block, this.pedalDown = ${this.pedalDown}`); //DB
+                    // console.log(`In the !mouseDown || !mouseIn block); //DB
                     // If audio didn't terminate due to pedal, need to be able to reference it later 
                     noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
                     
                 } else {
-                    const handleMouseUpOutTerminate = () => {
-                        // console.log(`In handleMouseUpOutTerminate`); //DB 
-                        noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
-                        event.target.removeEventListener(
-                            "mouseout", handleMouseOutTerminate);
-                        return;
-                    }
 
-                    const handleMouseOutTerminate = () =>  {
-                        // console.log(`In handleMouseOutTerminate`); //DB 
-                        noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
-                        event.target.removeEventListener(
-                            "mouseup", handleMouseUpOutTerminate); 
-                        return; 
-                    } 
+                    const handleMouseTerminate = (newEventType) =>  {
+                        // EventListeners removed in this function to avoid calling terminateAudio more than once
+                        console.log(`In handleMouseTerminate`); //DB
+                        if (!noteObject.terminated) { 
+                            console.log(`In !noteObject.terminated block`); //DB
+                            noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
+                        }}; 
+                    //         if (newEventType === "mouseup") {
+                    //             originalEvent.target.removeEventListener(
+                    //                 "mouseout", handleMouseTerminate); 
+                    //         } 
+                    //         else if (newEventType === "mouseout") { 
+                    //             originalEvent.target.removeEventListener(
+                    //                 "mouseup", handleMouseTerminate); 
+                    //         } 
+                    //         // If excess time triggered the termination
+                    //         else { 
+                    //             originalEvent.target.removeEventListener(
+                    //                 "mouseout", handleMouseTerminate); 
+                    //             originalEvent.target.removeEventListener(
+                    //                 "mouseup", handleMouseTerminate); 
+                    //         }
+                    //     } 
+                    // };
 
-                    // New event listeners to terminate audio at right time if past one second. Previous event listeners still exist. 
-                    event.target.addEventListener(
+                    originalEvent.target.addEventListener(
                         "mouseup",
-                        handleMouseUpOutTerminate,
+                        handleMouseTerminate,
                         { once: true }
                     );
 
-                    event.target.addEventListener(
+                    originalEvent.target.addEventListener(
                         "mouseout", 
-                        handleMouseOutTerminate,
+                        handleMouseTerminate,
                         { once: true }
                     );
+
+                    // Even if mouse not up/out, terminate audio at x seconds 
+                    setTimeout(() => { 
+                        // Pass in the original event so we can modify eventListeners, and pass null for conditionals in handleMouseTerminate
+                        handleMouseTerminate(); 
+                    }, 3000);
                 }
-            }, 1000);
+            }, 500);
         },
         handleKeyUp(keydownEvent, noteObject, keyMappings) {
             // console.log(`At start of playNoteKeydown`); //DB 
@@ -305,6 +318,7 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompr
         targetId: targetId, 
         dynamicsCompressor: dynamicsCompressor,
         noteNames: noteNames, 
+        terminated: false, 
         createNote() { 
             // console.log(`At the start of note method createNote()`); //DB 
             let audioBuffersIndex = this.noteIndexFromId(); 
@@ -386,10 +400,10 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompr
             this.noteSource.start(); 
         },
         terminateAudio(pedalDown, liveNoteArray) { 
-            console.log(`In terminateAudio() at beginning, pedalDown = ${pedalDown}`); //DB 
+            console.log(`In terminateAudio()`); //DB 
 
             if (!pedalDown) {
-                console.log(`In terminateAudio() !pedalDown block`); 
+                // console.log(`In terminateAudio() !pedalDown block`); // DB 
                 this.noteGain.gain.setValueAtTime(.5, 0); 
                 // releaseTime is time for noteGain to go to 0
                 const releaseTime = 2; 
@@ -397,8 +411,9 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompr
                     .001, 
                     this.audioContext.currentTime + releaseTime
                 );
+                this.terminated = true; 
             } else { 
-                console.log(`In terminateAudio(), pushing ${this} to liveNoteArray`); //DB
+                // console.log(`In terminateAudio(), pushing ${this} to liveNoteArray`); //DB
                 liveNoteArray.push(this); 
             }
         }
