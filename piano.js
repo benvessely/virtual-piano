@@ -236,15 +236,12 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
 
                     // Even if mouse not up/out, terminate audio at x seconds 
                     setTimeout(() => { 
-                        // Pass in the original event so we can modify eventListeners, and pass null for conditionals in handleMouseTerminate
                         handleMouseTerminate(); 
-                    }, 3000);
+                    }, 8000);
                 }
             }, 500);
         },
         handleKeyUp(keydownEvent, noteObject, keyMappings) {
-            // console.log(`At start of playNoteKeydown`); //DB 
-            // console.log(`event.target = ${event.target}`); //DB 
 
             let keyDown = true; 
             const keyDowned = keydownEvent.key;
@@ -271,11 +268,12 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                         if (keyDowned === keyupEvent.key) { 
                             if (!noteObject.terminated) { 
                                 noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
-                                // Need to remove event listener in the key case because checking key every time means can't use { once: true }
+                                // Remove event listener so that we don't keep checking this condition after audio is terminated
                                 keydownEvent.target.removeEventListener(
                                     "keyup", 
                                     handleKeyupTerminate
                                 ); 
+                                
                             } 
                         }
                     }
@@ -284,10 +282,22 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                         "keyup", 
                         handleKeyupTerminate
                     );
+
+                    // Even if key not up, terminate audio after x seconds 
+                    setTimeout(() => { 
+                        if (!noteObject.terminated) { 
+                            noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
+                        };
+                        // Remove event listener so that we don't keep checking this condition after audio is terminated
+                        keydownEvent.target.removeEventListener(
+                            "keyup", 
+                            handleKeyupTerminate
+                        ); 
+                    }, 8000);
+
                 }
             }, 500);
             
-            // console.log("We are at end of the playNoteMouse body"); //DB
         }
     }
     return audioPlayer
