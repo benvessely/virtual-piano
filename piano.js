@@ -279,9 +279,8 @@ function ConstructPedalObject(audioPlayer) {
                 // console.log(`In the keydown EventListener for space`); //DB 
                 if (keydownEvent.code === "Space" && !keydownEvent.repeat) { 
                     console.log(`In (keydownEvent.code === "Space") block`); //DB
-                    this.pedalDown = !this.pedalDown;
-                    this.checkPedalTermination(); 
-                    this.togglePedalVisual();
+                    this.pedalDown = true;
+                    this.togglePedalVisual(); 
                 }
             });
 
@@ -289,9 +288,10 @@ function ConstructPedalObject(audioPlayer) {
                 console.log(`In the keyup EventListener for space`); //DB 
                 if (keyupEvent.code === "Space" && !keyupEvent.repeat) { 
                     console.log(`In (keyupEvent.code === "Space") block`); //DB
-                    this.pedalDown = !this.pedalDown;
+                    prevPedalDown = this.pedalDown; 
+                    this.pedalDown = false; 
                     this.checkPedalTermination(); 
-                    this.togglePedalVisual();
+                    this.togglePedalVisual(prevPedalDown);
                 }
             });
         }, 
@@ -306,20 +306,25 @@ function ConstructPedalObject(audioPlayer) {
                 }
             }
         }, 
-        togglePedalVisual() { 
+        togglePedalVisual(prevPedalDown) { 
             console.log(`In togglePedalVisual()`); //DB 
             const pedalButton = document.getElementById("pedal-button"); 
             const glowingLight = document.getElementById("glowing-light-span"); 
         
-            if (this.pedalDown) { 
+            if (this.pedalDown && this.pedalDown !== prevPedalDown) { 
+                // Only enter this block if pedal is down and it wasn't previously
+                console.log(`In the this.pedalDown block of togglePedalVisual`);
                 pedalButton.classList.add("pedal-button-on");
                 glowingLight.classList.remove("glowing-light-span-off"); 
                 glowingLight.classList.add("glowing-light-span-on"); 
-            } else {
+            } 
+            else if (!this.pedalDown && this.pedalDown !== prevPedalDown) {
+                console.log(`In the !this.pedalDown block of togglePedalVisual`);
                 pedalButton.classList.remove("pedal-button-on"); 
                 glowingLight.classList.remove("glowing-light-span-on"); 
                 glowingLight.classList.add("glowing-light-span-off");
             } 
+            // Other cases include this.pedalDown === prevPedalDown, but that means we don't need to do anything
         }
     } 
     return pedal;
