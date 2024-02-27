@@ -96,78 +96,20 @@ async function CreateAudioBuffers(audioContext, noteNames) {
 }
 
 
-function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
+function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) { 
     const audioPlayer = { 
         audioBuffers: audioBuffers, 
         audioContext: audioContext, 
         noteNames: noteNames, 
         // Tracker variable to help with key release synchronization with audio termination
         mouseDown: false, 
-        pedalDown: false, 
         liveNoteArray: [], 
         setup() { 
-            this.setupPedalListeners(); 
+            this.pedal = ConstructPedalObject(this); 
+            this.pedal.setupPedalListeners(); 
+
             this.handlePrimaryGain(); 
             this.handleDynamicsCompressor(); 
-        },
-        setupPedalListeners() {
-            // console.log(`In setupPedalListeners()`); //DB
-
-            const pedalButton = document.getElementById("pedal-button");
-
-            // Use arrow function to make sure "this" is audioPlayer, not pedalButton
-            pedalButton.addEventListener("click", () => {
-                this.pedalDown = !this.pedalDown;
-                this.checkPedalTermination();
-                this.togglePedalVisual();
-            }); 
-
-            document.addEventListener("keydown", (keydownEvent) => { 
-                // console.log(`In the keydown EventListener for space`); //DB 
-                if (keydownEvent.code === "Space" && !keydownEvent.repeat) { 
-                    console.log(`In (keydownEvent.code === "Space") block`); //DB
-                    this.pedalDown = !this.pedalDown;
-                    this.checkPedalTermination(); 
-                    this.togglePedalVisual();
-                }
-            });
-
-            document.addEventListener("keyup", (keyupEvent) => { 
-                console.log(`In the keyup EventListener for space`); //DB 
-                if (keyupEvent.code === "Space" && !keyupEvent.repeat) { 
-                    console.log(`In (keyupEvent.code === "Space") block`); //DB
-                    this.pedalDown = !this.pedalDown;
-                    this.checkPedalTermination(); 
-                    this.togglePedalVisual();
-                }
-            });
-            
-        }, 
-        checkPedalTermination() { 
-            console.log(`In checkPedalTermination()`); //DB 
-            if (!this.pedalDown) { 
-                for (const liveNote of this.liveNoteArray) {
-                    // If the audio didn't terminate due to pedal condition
-                    if (!liveNote.terminated) {
-                        liveNote.terminateAudio(this.pedalDown, this.liveNoteArray);
-                    } 
-                }
-            }
-        }, 
-        togglePedalVisual() { 
-            console.log(`In togglePedalVisual()`); //DB 
-            const pedalButton = document.getElementById("pedal-button"); 
-            const glowingLight = document.getElementById("glowing-light-span"); 
-        
-            if (this.pedalDown) { 
-                pedalButton.classList.add("pedal-button-on");
-                glowingLight.classList.remove("glowing-light-span-off"); 
-                glowingLight.classList.add("glowing-light-span-on"); 
-            } else {
-                pedalButton.classList.remove("pedal-button-on"); 
-                glowingLight.classList.remove("glowing-light-span-on"); 
-                glowingLight.classList.add("glowing-light-span-off");
-            } 
         },
         handlePrimaryGain() { 
             this.createPrimaryGain(); 
@@ -213,7 +155,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
             setTimeout(() => { 
                 console.log(`In timed self-termination in playNote()`); 
                 if (!noteObject.terminated)
-                    noteObject.terminateAudio(this.pedalDown, this.liveNoteArray, bypassPedal=true); 
+                    noteObject.terminateAudio(this.pedal.pedalDown, this.liveNoteArray, bypassPedal=true); 
             }, 9000);
             
             // console.log("We are at end of the playNoteMouse body"); //DB
@@ -242,14 +184,14 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                 if (!mouseDown || !mouseIn) { 
                     // console.log(`In the !mouseDown || !mouseIn block); //DB
                     // If audio didn't terminate due to pedal, need to be able to reference it later, so pass in this.liveNoteArray
-                    noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
+                    noteObject.terminateAudio(this.pedal.pedalDown, this.liveNoteArray);
                     
                 } else {
                     // 
                     const handleMouseTerminate = () =>  {
                         console.log(`In handleMouseTerminate`); //DB
                         if (!noteObject.terminated) { 
-                            noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
+                            noteObject.terminateAudio(this.pedal.pedalDown, this.liveNoteArray);
                         }
                     }; 
 
@@ -285,7 +227,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                 
                 if (!keyDown) { 
                     // console.log("In the !keyDown check block"); //DB
-                    noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
+                    noteObject.terminateAudio(this.pedal.pedalDown, this.liveNoteArray);
                 } else {
                     // console.log(`In the else statement of !keyDown`); //DB
                     const handleKeyupTerminate = (keyupEvent) => {
@@ -293,7 +235,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                         // Need to check the keyup event target key every time since the target keyupEvent is the document
                         if (keyDowned === keyupEvent.key) { 
                             if (!noteObject.terminated) { 
-                                noteObject.terminateAudio(this.pedalDown, this.liveNoteArray);
+                                noteObject.terminateAudio(this.pedal.pedalDown, this.liveNoteArray);
                                 // Remove event listener so that we don't keep checking this condition after audio is terminated
                                 keydownEvent.target.removeEventListener(
                                     "keyup", 
@@ -314,11 +256,78 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
         }
     }
     return audioPlayer
+};
+
+
+function ConstructPedalObject(audioPlayer) { 
+    const pedal = {
+        pedalDown: false, 
+        audioPlayer: audioPlayer, 
+        setupPedalListeners() {
+        // console.log(`In setupPedalListeners()`); //DB
+
+            const pedalButton = document.getElementById("pedal-button");
+
+            // Use arrow function to make sure "this" is audioPlayer, not pedalButton
+            pedalButton.addEventListener("click", () => {
+                this.pedalDown = !this.pedalDown;
+                this.checkPedalTermination();
+                this.togglePedalVisual();
+            }); 
+
+            document.addEventListener("keydown", (keydownEvent) => { 
+                // console.log(`In the keydown EventListener for space`); //DB 
+                if (keydownEvent.code === "Space" && !keydownEvent.repeat) { 
+                    console.log(`In (keydownEvent.code === "Space") block`); //DB
+                    this.pedalDown = !this.pedalDown;
+                    this.checkPedalTermination(); 
+                    this.togglePedalVisual();
+                }
+            });
+
+            document.addEventListener("keyup", (keyupEvent) => { 
+                console.log(`In the keyup EventListener for space`); //DB 
+                if (keyupEvent.code === "Space" && !keyupEvent.repeat) { 
+                    console.log(`In (keyupEvent.code === "Space") block`); //DB
+                    this.pedalDown = !this.pedalDown;
+                    this.checkPedalTermination(); 
+                    this.togglePedalVisual();
+                }
+            });
+        }, 
+        checkPedalTermination() { 
+            console.log(`In checkPedalTermination()`); //DB 
+            if (!this.pedalDown) { 
+                for (const liveNote of this.audioPlayer.liveNoteArray) {
+                    // If the audio didn't terminate due to pedal condition
+                    if (!liveNote.terminated) {
+                        liveNote.terminateAudio(this.pedalDown, this.audioPlayer.liveNoteArray);
+                    } 
+                }
+            }
+        }, 
+        togglePedalVisual() { 
+            console.log(`In togglePedalVisual()`); //DB 
+            const pedalButton = document.getElementById("pedal-button"); 
+            const glowingLight = document.getElementById("glowing-light-span"); 
+        
+            if (this.pedalDown) { 
+                pedalButton.classList.add("pedal-button-on");
+                glowingLight.classList.remove("glowing-light-span-off"); 
+                glowingLight.classList.add("glowing-light-span-on"); 
+            } else {
+                pedalButton.classList.remove("pedal-button-on"); 
+                glowingLight.classList.remove("glowing-light-span-on"); 
+                glowingLight.classList.add("glowing-light-span-off");
+            } 
+        }
+    } 
+    return pedal;
 }
 
 
 function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompressor, noteNames) { 
-    const note = { 
+    const noteObject = { 
         audioContext: audioContext, 
         audioBuffers: audioBuffers, 
         targetId: targetId, 
@@ -425,7 +434,7 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompr
             }
         }
     }
-    return note; 
+    return noteObject; 
 }
 
 
