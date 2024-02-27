@@ -58,6 +58,7 @@ async function ready() {
     };
 
     document.addEventListener('keydown', (keydownEvent) => {
+        // console.log(`In keydown EventListener for piano notes`); //DB 
         if (keyMappings.hasOwnProperty(keydownEvent.key) && !keydownEvent.repeat) {
             // console.log(`In keydown event keyMappings check`);
             const targetId = keyMappings[keydownEvent.key]; 
@@ -65,23 +66,6 @@ async function ready() {
         }
     }); 
 
-    // Handle changing the sustain pedal from on to off
-    const pedalButton = document.getElementById("pedal-button"); 
-    const glowingLight = document.getElementById("glowing-light-span"); 
-    let offStyle = true; 
-
-    pedalButton.addEventListener("click", (event) => {
-        if (offStyle) { 
-            pedalButton.classList.add("pedal-button-on");
-            glowingLight.classList.remove("glowing-light-span-off"); 
-            glowingLight.classList.add("glowing-light-span-on"); 
-        } else {
-            pedalButton.classList.remove("pedal-button-on"); 
-            glowingLight.classList.remove("glowing-light-span-on"); 
-            glowingLight.classList.add("glowing-light-span-off");
-        }
-        offStyle = !offStyle; 
-    }); 
 } 
 
 
@@ -119,24 +103,48 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
         noteNames: noteNames, 
         // Tracker variable to help with key release synchronization with audio termination
         mouseDown: false, 
-        pedalDown: false,
-        liveNoteArray: [],
+        pedalDown: false, 
+        liveNoteArray: [], 
         setup() { 
-            this.setupPedalListener(); 
+            this.setupPedalListeners(); 
             this.handlePrimaryGain(); 
             this.handleDynamicsCompressor(); 
         },
-        setupPedalListener() { 
-            // console.log(`In setupPedalListener()`); //DB
-            const pedalButton = document.getElementById("pedal-button"); 
+        setupPedalListeners() {
+            // console.log(`In setupPedalListeners()`); //DB
+
+            const pedalButton = document.getElementById("pedal-button");
+
             // Use arrow function to make sure "this" is audioPlayer, not pedalButton
             pedalButton.addEventListener("click", () => {
-                this.pedalSwitch(); 
+                this.pedalDown = !this.pedalDown;
+                this.checkPedalTermination();
+                this.togglePedalVisual();
             }); 
-        },
-        pedalSwitch() { 
-            this.pedalDown = !this.pedalDown; 
-            console.log(`In pedalSwitch()`); //DB 
+
+            document.addEventListener("keydown", (keydownEvent) => { 
+                // console.log(`In the keydown EventListener for space`); //DB 
+                if (keydownEvent.code === "Space" && !keydownEvent.repeat) { 
+                    console.log(`In (keydownEvent.code === "Space") block`); //DB
+                    this.pedalDown = !this.pedalDown;
+                    this.checkPedalTermination(); 
+                    this.togglePedalVisual();
+                }
+            });
+
+            document.addEventListener("keyup", (keyupEvent) => { 
+                console.log(`In the keyup EventListener for space`); //DB 
+                if (keyupEvent.code === "Space" && !keyupEvent.repeat) { 
+                    console.log(`In (keyupEvent.code === "Space") block`); //DB
+                    this.pedalDown = !this.pedalDown;
+                    this.checkPedalTermination(); 
+                    this.togglePedalVisual();
+                }
+            });
+            
+        }, 
+        checkPedalTermination() { 
+            console.log(`In checkPedalTermination()`); //DB 
             if (!this.pedalDown) { 
                 for (const liveNote of this.liveNoteArray) {
                     // If the audio didn't terminate due to pedal condition
@@ -146,6 +154,21 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                 }
             }
         }, 
+        togglePedalVisual() { 
+            console.log(`In togglePedalVisual()`); //DB 
+            const pedalButton = document.getElementById("pedal-button"); 
+            const glowingLight = document.getElementById("glowing-light-span"); 
+        
+            if (this.pedalDown) { 
+                pedalButton.classList.add("pedal-button-on");
+                glowingLight.classList.remove("glowing-light-span-off"); 
+                glowingLight.classList.add("glowing-light-span-on"); 
+            } else {
+                pedalButton.classList.remove("pedal-button-on"); 
+                glowingLight.classList.remove("glowing-light-span-on"); 
+                glowingLight.classList.add("glowing-light-span-off");
+            } 
+        },
         handlePrimaryGain() { 
             this.createPrimaryGain(); 
             this.connectPrimaryGain(); 
@@ -191,7 +214,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                 console.log(`In timed self-termination in playNote()`); 
                 if (!noteObject.terminated)
                     noteObject.terminateAudio(this.pedalDown, this.liveNoteArray, bypassPedal=true); 
-            }, 8000);
+            }, 9000);
             
             // console.log("We are at end of the playNoteMouse body"); //DB
         }, 
