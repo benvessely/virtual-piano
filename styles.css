@@ -52,6 +52,10 @@
     box-sizing: border-box; 
 }
 
+*:focus {
+    outline: none; 
+}
+
 body, html {
     background-color: #db01db30;
     min-height: 100vh;
@@ -129,6 +133,7 @@ body, html {
 }
 
 .glowing-light-span-on { 
+    /* TODO Fix size of light when window is small */ 
     width: 22.5%; 
     height: 27.5%; 
     background-color: red; 
