@@ -117,38 +117,43 @@ body, html {
     position: relative; 
     right: 10%;
     bottom: 15%;
+    padding: 0px; 
     background-color: #b8b8b8;
-    border: 3px solid #888;
-    font-size: clamp(0em, 2.1vw, 1.18em);
+    border: .25em  solid #888;
+    font-size: clamp(0em, 2vw, 1.18em);
     font-family:'Courier New', Courier, monospace; 
     display: flex; 
     justify-content: space-evenly;
     align-items: center;
 }
 
+.pedal-button-text-span { 
+    padding: 0px; 
+}
+
 .pedal-button-on { 
     background-color: #a0a0a0;
-    border: 3px solid #888;
-    /* font-weight: bold; */
+}
+
+.glowing-light-span-off { 
+    width: 17.5%; 
+    height: 26.5%; 
+    position: relative; 
+    right: 7.5%;
+    background-color: rgba(255, 0, 0, .5);
+    border: 5px rgba(255, 0, 0, .5);
+    border-radius: 50%; 
 }
 
 .glowing-light-span-on { 
-    /* TODO Fix size of light when window is small */ 
-    width: 22.5%; 
-    height: 27.5%; 
+    width: 17.5%; 
+    height: 26.5%; 
+    position: relative; 
+    right: 7.5%;
     background-color: red; 
     border: 2px solid red; 
     border-radius: 50%; 
     box-shadow: 0 0 15px 5px #ea4c89;
-}
-
-.glowing-light-span-off { 
-    width: 23.5%; 
-    height: 27.5%; 
-    background-color: rgba(255, 0, 0, .5);
-    border: 5px rgba(255, 0, 0, .5);
-    border-radius: 50%; 
-    /* box-shadow: 0 0 15px 5px #ea4c89; */
 }
 
 .btn-key-white {
