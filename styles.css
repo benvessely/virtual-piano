@@ -141,19 +141,20 @@ body, html {
     position: relative; 
     right: 7.5%;
     background-color: rgba(255, 0, 0, .5);
-    border: 5px rgba(255, 0, 0, .5);
+    border: 2px rgba(255, 0, 0, .5);
     border-radius: 50%; 
 }
 
-.glowing-light-span-on { 
-    width: 17.5%; 
-    height: 26.5%; 
-    position: relative; 
+.glowing-light-span-on {
+    width: 17.5%;
+    height: 26.5%;
+    position: relative;
     right: 7.5%;
-    background-color: red; 
-    border: 2px solid red; 
-    border-radius: 50%; 
+    background-color: red;
+    border: 2px red;
+    border-radius: 50%;
     box-shadow: 0 0 15px 5px #ea4c89;
+    margin-left: .75%; 
 }
 
 .btn-key-white {
