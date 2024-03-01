@@ -16,42 +16,44 @@
         <header>
             <h1 class="title">Virtual Piano</h1>
         </header>
-
-        <!-- This approach keeps all keys as children of the container div. --> 
-        <div class="container">
-            <div class="pedal-button-container" id="pedal-button-container">
-                <button type="button" id="pedal-button" class="pedal-button">
-                    <span class="pedal-button-text-span">Sustain Pedal</span>
-                    <span id="glowing-light-span" class="glowing-light-span-off">
-                    </span>
-                </button>
-                
-            </div>
-
-            <div class="keys-container">
-                <button type="button" id="btn-key-c-low" class="btn-key-white btn-key-c-low">(a)</button>
-                <button type="button" id="btn-key-c-sharp" class="btn-key-black btn-key-c-sharp">(w)</button>
-                <button type="button" id="btn-key-d" class="btn-key-white btn-key-d">(s)
-                </button>
-                <button type="button" id="btn-key-d-sharp" class="btn-key-black btn-key-d-sharp">(e)</button>
-                <button type="button" id="btn-key-e" class="btn-key-white btn-key-e">(d)</button>
-                <button type="button" id="btn-key-f"class="btn-key-white btn-key-f">(f)</button>
-                <button type="button" id="btn-key-f-sharp"class="btn-key-black btn-key-f-sharp">(t)</button>
-                <button type="button" id="btn-key-g"class="btn-key-white btn-key-g">(g)</button>
-                <button type="button" id="btn-key-g-sharp" class="btn-key-black btn-key-g-sharp">(y)</button>
-                <button type="button" id="btn-key-a" class="btn-key-white btn-key-a">(h)</button>
-                <button type="button" id="btn-key-a-sharp" class="btn-key-black btn-key-a-sharp">(u)</button>
-                <button type="button" id="btn-key-b" class="btn-key-white btn-key-b">(j)</button>
-                <button type="button" id="btn-key-c-high" class="btn-key-white btn-key-c-high">(k)</button>
-            </div>
-  
-        </div>
-
         
+        <div class="body-main">
+            <div class="container">
+                <div class="pedal-button-container" id="pedal-button-container">
+                    <button type="button" id="pedal-button" class="pedal-button">
+                        <span class="pedal-button-text-span">Sustain Pedal</span>
+                        <span id="glowing-light-span" class="glowing-light-span-off">
+                        </span>
+                    </button>
+                </div>
+
+                <div class="keys-container">
+                    <button type="button" id="btn-key-c-low" class="btn-key-white btn-key-c-low">(a)</button>
+                    <button type="button" id="btn-key-c-sharp" class="btn-key-black btn-key-c-sharp">(w)</button>
+                    <button type="button" id="btn-key-d" class="btn-key-white btn-key-d">(s)
+                    </button>
+                    <button type="button" id="btn-key-d-sharp" class="btn-key-black btn-key-d-sharp">(e)</button>
+                    <button type="button" id="btn-key-e" class="btn-key-white btn-key-e">(d)</button>
+                    <button type="button" id="btn-key-f"class="btn-key-white btn-key-f">(f)</button>
+                    <button type="button" id="btn-key-f-sharp"class="btn-key-black btn-key-f-sharp">(t)</button>
+                    <button type="button" id="btn-key-g"class="btn-key-white btn-key-g">(g)</button>
+                    <button type="button" id="btn-key-g-sharp" class="btn-key-black btn-key-g-sharp">(y)</button>
+                    <button type="button" id="btn-key-a" class="btn-key-white btn-key-a">(h)</button>
+                    <button type="button" id="btn-key-a-sharp" class="btn-key-black btn-key-a-sharp">(u)</button>
+                    <button type="button" id="btn-key-b" class="btn-key-white btn-key-b">(j)</button>
+                    <button type="button" id="btn-key-c-high" class="btn-key-white btn-key-c-high">(k)</button>
+                </div>
+
+            </div>
+
+            <div class="directions" id="directions"> 
+                Directions: Play the virtual piano using your computer keyboard or mouse. Sustain pedal can be activated by mouse click on the  button above, or used more dynamically by depression and release of the space bar. 
+            </div>
+        </div>
 
 
         <footer>
-            <div class="footer">
+            <div class="footer-container">
                 <span class="footer-item footer-text ">
                     Made by Ben Vessely. 
                 </span>

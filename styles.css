@@ -71,7 +71,6 @@ body, html {
     margin: 0; 
     padding: 20px;
     font-size: 3em;
-    border-bottom: 3px solid;
 }
 
 .container {
@@ -82,7 +81,7 @@ body, html {
     background-color: #3a3a3a; 
     border: 5px solid;
     border-radius: 5px; 
-    margin: auto;
+    margin: auto auto .25em auto; 
     /* The position and top properties will move the main container slightly
     above center, though seems like a bit of a makeshift solution. */
     position: relative;  
@@ -94,6 +93,36 @@ body, html {
     align-items: center; 
 }
 
+.directions { 
+    width: 85%;
+    margin: 0 auto auto auto; 
+    /* Below is scaling container-max-width down by required factor by the fact that width is 85%, not 90% */ 
+    max-width: calc(var(--container-max-width) * .85 / .90);
+    text-align: center; 
+    font-size: clamp(1em, 1.25em, 4vw);
+}
+
+/* @media all and (min-width: 1250px) {
+    .directions { 
+        width: 20%;
+        margin: 0;  
+        font-size: clamp(1em, 1.25em, 4vw);
+        display: inline;
+    }
+
+    .container {
+       
+        /* The position and top properties will move the main container slightly
+        above center, though seems like a bit of a makeshift solution. */
+/*  
+        position: relative;  
+        top: -10px;
+    
+        display: inline-flex; 
+    }
+} */
+
+
 .pedal-button-container { 
     display: flex; 
     justify-content: end; 
@@ -101,13 +130,14 @@ body, html {
     height: 20%;
 }
 
-.keys-container { 
-    /* Use relative positioning so that black key alignment is more adaptable */ 
+.keys-container {
+    /* Use relative positioning so that black key alignment is more adaptable */
     position: relative; 
     display: flex; 
     justify-content: center; 
     width: 95%; 
     height: 75%; 
+
 }
 
 .pedal-button { 
@@ -174,7 +204,7 @@ body, html {
     border-radius: 0 0 6px 6px; 
     
     padding-top: 35%; 
-    color: #686868; 
+    color: #686868;  
     font-size: clamp(0px, 1.4em, 2.4vw);
 }
 
@@ -236,17 +266,11 @@ body, html {
     left: var(--a-sharp-left); 
 }
 
-.key-label-description {
-    text-align: center; 
-} 
+footer { 
+    margin-top: auto;
+}
 
-.footer { 
-    /* Below aligns without display flex  */
-    /* position: fixed;
-    bottom: .5em;
-    width: 100%;  */
-    /* text-align: center;  */
-    /* Below aligns with display flex */
+.footer-container { 
     display: flex; 
     justify-content: center; 
     align-items: baseline; 
