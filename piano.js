@@ -1,3 +1,5 @@
+// TODO Improve audio quality without headphones?? 
+
 // Code below to check to make sure DOM content loaded before adding event listeners.
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -60,7 +62,8 @@ async function ready() {
     document.addEventListener('keydown', (keydownEvent) => {
         // console.log(`In keydown EventListener for piano notes`); // DB 
         if (keyMappings.hasOwnProperty(keydownEvent.key) && !keydownEvent.repeat) {
-            // console.log(`In keydown event keyMappings check`);
+            console.log(`In keydown event keyMappings check, keydownEvent.key = ` + 
+            `${keydownEvent.key}`);
             const targetId = keyMappings[keydownEvent.key]; 
             audioPlayer.playNote(keydownEvent, targetId, keyMappings); 
         }
@@ -134,8 +137,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
             this.dynamicsCompressor.connect(this.primaryGainControl); 
         },
         playNote(event, targetId, keyMappings=null) { 
-            // console.log(`At start of playNoteMouse`); // DB 
-            // console.log(`event.target = ${e ent.target}`); // DB 
+            console.log(`At start of playNote for note with button id ${targetId} `); //DB
 
             let noteObject = ConstructNoteObject(this.audioContext,
                 this.audioBuffers, targetId,
@@ -143,6 +145,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
             noteObject.createNote();
             noteObject.createNoteGain();
             noteObject.playAudio(); 
+            console.log(`Just after noteObject.playAudio in playNote for note with button id ${targetId}`); //DB 
 
             if (event.type === 'mousedown') {
                 this.handleMouseUpOut(event, noteObject); 
@@ -156,7 +159,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                 // console.log(`In timed self-termination in playNote()`); 
                 if (!noteObject.terminated)
                     noteObject.terminateAudio(this.pedal.pedalDown, this.liveNoteArray, bypassPedal=true); 
-            }, 9000);
+            }, 8000);
             
             // console.log("We are at end of the playNoteMouse body"); // DB
         }, 
@@ -272,10 +275,10 @@ function ConstructPedalObject(audioPlayer) {
             pedalButton.addEventListener("click", (clickEvent) => {
                 // Checking detail to prevent activation of button when space is pressed while button is in focus, as recommended via stack overflow
                 if (clickEvent.detail != 0) { 
-                    console.log(`In .detail check`); 
+                    // console.log(`In .detail check`); 
                     this.pedalDown = !this.pedalDown;
-                    this.checkPedalTermination();
-                    this.togglePedalVisual();
+                    this.checkPedalTermination(); 
+                    this.togglePedalVisual(); 
                 }
             }); 
 
@@ -300,7 +303,7 @@ function ConstructPedalObject(audioPlayer) {
             });
         }, 
         checkPedalTermination() { 
-            // console.log(`In checkPedalTermination()`); // DB 
+            console.log(`In checkPedalTermination()`); // DB 
             if (!this.pedalDown) { 
                 for (const liveNote of this.audioPlayer.liveNoteArray) {
                     // If the audio didn't terminate due to pedal condition
@@ -424,7 +427,7 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompr
             this.noteSource.start(); 
         },
         terminateAudio(pedalDown, liveNoteArray, bypassPedal=false) { 
-            // console.log(`In terminateAudio()`); // DB 
+            console.log(`In terminateAudio() for note with id ${this.targetId}`); // DB 
 
             // If the note has played for a long enough time, we terminate it even if the pedal is down
             if (!pedalDown || bypassPedal) {
