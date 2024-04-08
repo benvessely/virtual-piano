@@ -223,6 +223,29 @@ body, html {
     background-color: #ddd;
 }
 
+.btn-key-white-keydown { 
+    /* Same as btn-key-white but with the same color as for :hover */ 
+
+    width: calc(var(--white-key-width));
+    height: calc(var(--white-key-height)); 
+    /* Calculate max width by taking container max width, scaling it down by the ratio between key and container widths, then scaling by key scale. */
+    max-width: calc(var(--container-max-width) *
+        var(--white-key-width-unitless) / var(--container-width-unitless) 
+        * var(--white-key-scale));
+    /* Similar to max width above */
+    max-height: calc(var(--container-max-height) *
+        (var(--white-key-height-unitless) / var(--container-height-unitless))
+        * var(---white-key-scale));
+    background-color: #ddd;
+    margin-right: 0;
+    border: 1.5px solid #222;
+    border-radius: 0 0 6px 6px; 
+    
+    padding-top: 35%; 
+    color: #686868;  
+    font-size: clamp(0px, 1.4em, 2.4vw);
+}
+
 .btn-key-black {
     background-color: #222; 
     border: 2px solid #222;
@@ -250,6 +273,37 @@ body, html {
 
 .btn-key-black:hover { 
     background-color: #333;
+}
+
+.btn-key-black-keydown { 
+    /* Same as btn-key-black but with same background color as :hover */
+
+    background-color: #333; 
+    border: 2px solid #222;
+    width: var(--black-key-width); 
+    height: var(--black-key-height);
+    /* Calculate max width by taking container max width, scaling it down by the ratio between key and container widths, then scaling by key scale. */
+    max-width: calc(var(--container-max-width) *
+        var(--black-key-width-unitless) / var(--container-width-unitless) 
+        * var(--black-key-scale));
+    /* Similar to max width above */
+    max-height: calc(var(--container-max-height) *
+        (var(--black-key-height-unitless) / var(--container-height-unitless))
+        * var(---black-key-scale));
+    /* Need to place black keys in specific spots overlaying white keys */
+    position: absolute; 
+    border-radius: 0 0 5px 5px; 
+
+    text-align: center; 
+    padding-top: 22%; 
+    padding-left: 0; 
+    padding-right: 0; 
+    color: #999;
+    font-size: clamp(0px, 1.25em, 2.1vw);
+}
+
+.test{
+    width: 400px; 
 }
 
 .btn-key-c-sharp {

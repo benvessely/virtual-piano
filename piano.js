@@ -4,7 +4,7 @@
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         ready()
-    });
+    }); 
 } else {
     ready();
 };
@@ -18,15 +18,15 @@ async function ready() {
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const audioBuffers = await CreateAudioBuffers(audioContext, noteNames);
-    const audioPlayer = GenerateAudioPlayer(audioBuffers, audioContext, noteNames); 
+    const audioPlayer = ContructAudioPlayerObject(audioBuffers, audioContext, noteNames); 
     audioPlayer.setup(); 
 
     const pianoKeys = document.querySelectorAll('.btn-key-white, .btn-key-black');
     for (let i = 0; i < pianoKeys.length; i++) {
         const button = pianoKeys[i];
         button.addEventListener('mousedown', (mousedownEvent) => { 
-            const targetId = mousedownEvent.target.id; 
-            audioPlayer.playNote(mousedownEvent, targetId); 
+            const keyDownedId = mousedownEvent.target.id; 
+            audioPlayer.playNote(mousedownEvent, keyDownedId); 
         });
     }
 
@@ -62,10 +62,25 @@ async function ready() {
     document.addEventListener('keydown', (keydownEvent) => {
         // console.log(`In keydown EventListener for piano notes`); // DB 
         if (keyMappings.hasOwnProperty(keydownEvent.key) && !keydownEvent.repeat) {
-            console.log(`In keydown event keyMappings check, keydownEvent.key = ` + 
-            `${keydownEvent.key}`);
-            const targetId = keyMappings[keydownEvent.key]; 
-            audioPlayer.playNote(keydownEvent, targetId, keyMappings); 
+            // console.log(`In keydown event keyMappings check, keydownEvent.key = ` + i`${keydownEvent.key}`);
+            const keyDownedId = keyMappings[keydownEvent.key]; 
+            const keyDowned = document.getElementById(keyDownedId);
+            // console.log(`keyDowned.id = ${keyDowned.id}`); //DB 
+            if (['w','e','t','y','u'].includes(keydownEvent.key)) { 
+                // In this case, we have a black key 
+                // console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
+                keyDowned.classList.remove("btn-key-black"); 
+                // console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
+                // console.log(`Just removed btn-key-black class`); //DB 
+                keyDowned.classList.add("btn-key-black-keydown"); 
+                // console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
+                // console.log(`Just after code adding btn-key-black-keydown class`); //DB 
+            } else { 
+                keyDowned.classList.remove("btn-key-white"); 
+                keyDowned.classList.add("btn-key-white-keydown"); 
+            }
+            
+            audioPlayer.playNote(keydownEvent, keyDownedId, keyMappings); 
         }
     }); 
 
@@ -99,7 +114,7 @@ async function CreateAudioBuffers(audioContext, noteNames) {
 }
 
 
-function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) { 
+function ContructAudioPlayerObject(audioBuffers, audioContext, noteNames) { 
     const audioPlayer = { 
         audioBuffers: audioBuffers, 
         audioContext: audioContext, 
@@ -136,16 +151,16 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
         connectDynamicsCompressor() { 
             this.dynamicsCompressor.connect(this.primaryGainControl); 
         },
-        playNote(event, targetId, keyMappings=null) { 
-            console.log(`At start of playNote for note with button id ${targetId} `); //DB
+        playNote(event, keyDownedId, keyMappings=null) { 
+            // console.log(`At start of playNote for note with button id ${keyDownedId} `); //DB
 
             let noteObject = ConstructNoteObject(this.audioContext,
-                this.audioBuffers, targetId,
+                this.audioBuffers, keyDownedId,
                 this.dynamicsCompressor, this.noteNames); 
             noteObject.createNote();
             noteObject.createNoteGain();
             noteObject.playAudio(); 
-            console.log(`Just after noteObject.playAudio in playNote for note with button id ${targetId}`); //DB 
+            // console.log(`Just after noteObject.playAudio in playNote for note with button id ${keyDownedId}`); //DB 
 
             if (event.type === 'mousedown') {
                 this.handleMouseUpOut(event, noteObject); 
@@ -215,15 +230,41 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
         handleKeyUp(keydownEvent, noteObject, keyMappings) {
 
             let keyDown = true; 
-            const keyDowned = keydownEvent.key;
-        
+            const keyDownedId = keyMappings[keydownEvent.key]; 
+            const keyDowned = document.getElementById(keyDownedId);
+            
             keydownEvent.target.addEventListener("keyup", (keyupEvent) => {
                 // console.log(`In the first keyup eventListener for ${keyupEvent.key}`); // DB
                 // Change flag only if the keyup event was performed on the same key as performed the keydown event
-                if (keyDowned === keyupEvent.key) {
+                if (keydownEvent.key === keyupEvent.key) {
                     keyDown = false;
                 }
             });
+
+            // This EventListener just handles behavior for changing the visuals of the keys on keyboard press
+            keydownEvent.target.addEventListener("keyup", (keyupEvent) => {
+                console.log(`In the second keyup eventListener for ${keyupEvent.key}`); // DB
+                // Change flag only if the keyup event was performed on the same key as performed the keydown event
+                if (keydownEvent.key === keyupEvent.key) {
+                    
+                    console.log(`keyupEvent.key = ${keyupEvent.key}`); //DB 
+                    console.log(`Type of keyupEvent.key is ${typeof(keyupEvent.key)}`); 
+                    if (['w','e','t','y','u'].includes(keyupEvent.key)) { 
+                        // In this case, we have a black key 
+                        console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
+                        keyDowned.classList.add("btn-key-black"); 
+                        console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
+                        console.log(`Just added btn-key-black class`); //DB 
+                        keyDowned.classList.remove("btn-key-black-keydown"); 
+                        console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
+                        console.log(`Just after code removing btn-key-black-keydown class`); //DB 
+                    } else { 
+                        keyDowned.classList.add("btn-key-white"); 
+                        keyDowned.classList.remove("btn-key-white-keydown"); 
+                    } 
+                }
+            });
+
 
             setTimeout(() => { 
                 // console.log(`In the terminateAudio setTimeout from keydown event for ${}`); // DB 
@@ -236,7 +277,7 @@ function GenerateAudioPlayer(audioBuffers, audioContext, noteNames) {
                     const handleKeyupTerminate = (keyupEvent) => {
                         // console.log(`In handleKeyupTerminate`); // DB
                         // Need to check the keyup event target key every time since the target keyupEvent is the document
-                        if (keyDowned === keyupEvent.key) { 
+                        if (keydownEvent.key === keyupEvent.key) { 
                             if (!noteObject.terminated) { 
                                 noteObject.terminateAudio(this.pedal.pedalDown, this.liveNoteArray);
                                 // Remove event listener so that we don't keep checking this condition after audio is terminated
@@ -319,7 +360,7 @@ function ConstructPedalObject(audioPlayer) {
             const glowingLight = document.getElementById("glowing-light-span"); 
         
             if (this.pedalDown && this.pedalDown !== prevPedalDown) { 
-                // Only enter this block if pedal is down and it wasn't previously
+                // Only enter this block if pedal is down and it wasn't previously; second check needed for GUI and spacebar interaction 
                 // console.log(`In the this.pedalDown block of togglePedalVisual`);
                 pedalButton.classList.add("pedal-button-on");
                 glowingLight.classList.remove("glowing-light-span-off"); 
@@ -338,11 +379,11 @@ function ConstructPedalObject(audioPlayer) {
 }
 
 
-function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompressor, noteNames) { 
+function ConstructNoteObject(audioContext, audioBuffers, keyDownedId, dynamicsCompressor, noteNames) { 
     const noteObject = { 
         audioContext: audioContext, 
         audioBuffers: audioBuffers, 
-        targetId: targetId, 
+        keyDownedId: keyDownedId, 
         dynamicsCompressor: dynamicsCompressor,
         noteNames: noteNames, 
         terminated: false, 
@@ -357,7 +398,7 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompr
         },
         noteIndexFromId() { 
             let audioBuffersIndex;
-            switch (this.targetId) { 
+            switch (this.keyDownedId) { 
                 case "btn-key-c-low": 
                     audioBuffersIndex = this.noteNames.indexOf("c3"); 
                     // console.log(`audioBuffersIndex = ${audioBuffersIndex}`); // DB 
@@ -423,11 +464,11 @@ function ConstructNoteObject(audioContext, audioBuffers, targetId, dynamicsCompr
             this.noteSource.connect(this.noteGain); 
             this.noteGain.connect(this.dynamicsCompressor); 
         },
-        playAudio () { 
+        playAudio() { 
             this.noteSource.start(); 
         },
         terminateAudio(pedalDown, liveNoteArray, bypassPedal=false) { 
-            console.log(`In terminateAudio() for note with id ${this.targetId}`); // DB 
+            // console.log(`In terminateAudio() for note with id ${this.keyDownedId}`); // DB 
 
             // If the note has played for a long enough time, we terminate it even if the pedal is down
             if (!pedalDown || bypassPedal) {
