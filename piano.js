@@ -241,6 +241,8 @@ function ContructAudioPlayerObject(audioBuffers, audioContext, noteNames) {
                 }
             });
 
+            // TODO 4/7 The behavior with changing the visuals for the keys when they are pressed works, but the only problem is that I'm not deleting any of the old keyup EventListeners, so both the above and below EventListeners are getting called for old objects. Which actually might be fine, since the body of the EventListeners checks the keyup and keydown keys are the same each time, so it's not like those old EventListeners are going to do anything. So maybe we leave it?
+
             // This EventListener just handles behavior for changing the visuals of the keys on keyboard press
             keydownEvent.target.addEventListener("keyup", (keyupEvent) => {
                 console.log(`In the second keyup eventListener for ${keyupEvent.key}`); // DB
@@ -251,13 +253,13 @@ function ContructAudioPlayerObject(audioBuffers, audioContext, noteNames) {
                     console.log(`Type of keyupEvent.key is ${typeof(keyupEvent.key)}`); 
                     if (['w','e','t','y','u'].includes(keyupEvent.key)) { 
                         // In this case, we have a black key 
-                        console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
+                        // console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
                         keyDowned.classList.add("btn-key-black"); 
-                        console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
-                        console.log(`Just added btn-key-black class`); //DB 
+                        // console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
+                        // console.log(`Just added btn-key-black class`); //DB 
                         keyDowned.classList.remove("btn-key-black-keydown"); 
-                        console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
-                        console.log(`Just after code removing btn-key-black-keydown class`); //DB 
+                        // console.log(`keyDowned.classList = ${keyDowned.classList}`); //DB 
+                        // console.log(`Just after code removing btn-key-black-keydown class`); //DB 
                     } else { 
                         keyDowned.classList.add("btn-key-white"); 
                         keyDowned.classList.remove("btn-key-white-keydown"); 
